@@ -22,9 +22,16 @@ public class ChildrenServlet extends HttpServlet{
 	public ChildrenServlet(CuratorFramework curatorFramework) {
 		this.client = curatorFramework;
 	}
+	
+	private void allowCrossOrigin(HttpServletResponse resp) {
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+		resp.setHeader("Access-Control-Allow-Methods", "GET");
+		resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+	}
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	this.allowCrossOrigin(resp);
         try {
 			String nodePath = Path.fromRequest(req);
 			List<String> children = client.getChildren().forPath(nodePath);
