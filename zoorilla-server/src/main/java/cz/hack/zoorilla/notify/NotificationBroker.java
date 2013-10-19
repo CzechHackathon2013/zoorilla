@@ -54,7 +54,7 @@ public class NotificationBroker {
 		try {
 			json.object();
 			json.key("path").value(tp.getPath());
-			json.key("type").value(tp.getType());
+			json.key("type").value(tp.getType().name().toLowerCase());
 			json.endObject();
 		} catch(JSONException e) {
 			

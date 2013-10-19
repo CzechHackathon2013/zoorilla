@@ -1,5 +1,11 @@
 package cz.hack.zoorilla.notify;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.UpgradeRequest;
 import org.eclipse.jetty.websocket.api.UpgradeResponse;
@@ -24,6 +30,13 @@ public class NotificationServlet extends WebSocketServlet {
 	}
 	
 	@Override
+	protected void service(HttpServletRequest request,
+			HttpServletResponse resp) throws ServletException, IOException {
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+		super.service(request, resp);
+	}
+	
+	@Override
 	public void configure(WebSocketServletFactory factory) {
 		factory.getPolicy().setIdleTimeout(14628725494L);
 		factory.setCreator(new WebSocketCreator() {
@@ -42,7 +55,7 @@ public class NotificationServlet extends WebSocketServlet {
 						try {
 							JSONObject json = new JSONObject(new JSONTokener(message));
 							String path = json.getString("path");
-							NotificationType type = NotificationType.valueOf(json.getString("type"));
+							NotificationType type = NotificationType.valueOf(json.getString("type").toUpperCase());
 							boolean watch = json.getBoolean("watch");
 							if(watch) {
 								broker.registerWatcher(this.getSession(),type,path);
