@@ -28,19 +28,19 @@ String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 
-#ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
-#ws.onerror = (event) ->
-#    console.log(event)
-#ws.onmessage = (event) ->
-#    console.log(event)
-#ws.onopen = (event) ->
-#    tmp =
-#        watch: 'true'
-#        path: '/'
-#        type: 'CHILDREN'
-#    ws.send(JSON.stringify(tmp))
-#ws.onclose = (event) ->
-#    console.log(event)
+ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
+ws.onerror = (event) ->
+    console.log(event)
+ws.onmessage = (event) ->
+    console.log(event)
+ws.onopen = (event) ->
+    tmp =
+        watch: 'true'
+        path: '/'
+        type: 'CHILDREN'
+    ws.send(JSON.stringify(tmp))
+ws.onclose = (event) ->
+    console.log(event)
 
 
 
