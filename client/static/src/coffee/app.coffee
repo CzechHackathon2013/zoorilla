@@ -97,7 +97,7 @@ TreeController = ($scope, $http, $rootScope) ->
         $http({
             url: window.settings.connection+"/0/node"+node+"/",
             method: "PUT",
-            data: JSON.stringify({"type": "persistant"}), # {type: "ephemeral"}
+            data: JSON.stringify({"type": "persistent"}), # {type: "ephemeral"}
             headers: {'Content-Type': 'application/json'},
         })
             .success ->
