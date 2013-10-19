@@ -1,9 +1,7 @@
 package cz.hack.zoorilla;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -28,21 +26,32 @@ import org.json.JSONTokener;
  */
 public class NodeServlet extends HttpServlet {
 	
+	private static final byte[] NO_DATA = {};
+	
 	private final CuratorFramework client;
 
 	public NodeServlet(CuratorFramework curatorFramework) {
 		this.client = curatorFramework;
 	}
 	
+	private void allowCrossOrigin(HttpServletResponse resp) {
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+		resp.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+		resp.setHeader("Access-Control-Allow-Headers", "Content-Type,X-Zoo-Original-Version");
+	}
+	
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	this.allowCrossOrigin(resp);
         try {
 			String nodePath = Path.fromRequest(req);
 			Stat stat = new Stat();
             client.getChildren().storingStatIn(stat).forPath(nodePath);
             byte[] nodeData = client.getData().forPath(nodePath);
             resp.setStatus(HttpServletResponse.SC_OK);
+            resp.setContentLength(nodeData.length);
             resp.setHeader("X-Zoo-Version", String.valueOf(stat.getVersion()));
+            resp.setHeader("X-Zoo-Node-Type", this.getMode(stat).toString().toLowerCase());
             resp.getOutputStream().write(nodeData);
             resp.getOutputStream().flush();
 		} catch(IllegalArgumentException ex) {
@@ -54,8 +63,13 @@ public class NodeServlet extends HttpServlet {
         }
     }
     
+    private CreateMode getMode(Stat stat) {
+    	return(stat.getEphemeralOwner() == 0 ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL);
+    }
+    
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    	this.allowCrossOrigin(resp);
     	CreateMode mode = this.getCreateMode(req);
     	if(mode == null) {
     		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -63,7 +77,7 @@ public class NodeServlet extends HttpServlet {
     	}
     	try {
 			String nodePath = Path.fromRequest(req);
-			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(nodePath);
+			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(nodePath, NO_DATA);
 		} catch(IllegalArgumentException ex) {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
     	} catch (KeeperException.NodeExistsException e) {
@@ -76,6 +90,7 @@ public class NodeServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+    	this.allowCrossOrigin(resp);
         if(req.getHeader("X-Zoo-Original-Version") == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
@@ -93,12 +108,19 @@ public class NodeServlet extends HttpServlet {
         }
     }
     
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+    		throws ServletException, IOException {
+    	this.allowCrossOrigin(resp);
+    }
+    
     
     private byte[] fetchData( ServletInputStream reader) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        while(reader.read(buffer) != -1) {
-            stream.write(buffer);
+        int c;
+        while((c = reader.read(buffer)) != -1) {
+            stream.write(buffer, 0, c);
         }
 
         return stream.toByteArray();
@@ -109,12 +131,14 @@ public class NodeServlet extends HttpServlet {
 			JSONObject json = new JSONObject(new JSONTokener(req.getReader()));
 			return(CreateMode.valueOf(json.getString("type").toUpperCase()));
 		} catch (Exception e) {
+			e.printStackTrace();
 			return(null);
 		}
     }
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		this.allowCrossOrigin(resp);
 		try {
 			String nodePath = Path.fromRequest(req);
 			if (! Path.isRoot(nodePath)) {

@@ -33,8 +33,8 @@ public class NotificationServlet extends WebSocketServlet {
 
 					@Override
 					public void onWebSocketClose(int statusCode, String reason) {
-						super.onWebSocketClose(statusCode, reason); //To change body of generated methods, choose Tools | Templates.
 						broker.remove(this.getSession());
+						super.onWebSocketClose(statusCode, reason); //To change body of generated methods, choose Tools | Templates.
 					}
 
 					@Override

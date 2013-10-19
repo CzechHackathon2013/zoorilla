@@ -12,6 +12,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
+import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -68,6 +69,7 @@ public class NotificationBroker {
 						if (s.isOpen()) {
 							s.getRemote().sendStringByFuture(msg);
 						} else {
+							logger.info("Cannot notify {} - already closed", s);
 							this.remove(s);
 						}
 					} catch(Exception ex) {
@@ -89,11 +91,15 @@ public class NotificationBroker {
 					logger.warn("Error closing cahe", e);
 				}
 				this.caches.remove(path);
+				logger.info("Unregister listener for path {}", path);
 			}
 		}
 	}
 
 	public void removeWatcher(Session session, NotificationType type, String path) {
+		logger.info("Remove watcher for sesion {} at {}:{}", new Object[] {
+			session, type, path
+		});
 		TypePath tp = new TypePath(type, path);
 		synchronized (this) {
 			Set<Session> sessions = this.zednik.get(tp);
@@ -101,10 +107,12 @@ public class NotificationBroker {
 			if(sessions != null && sessions.remove(session)) {
 				if(sessions.isEmpty()) {
 					this.zednik.remove(tp);
+					logger.info("Nothing more listens for {}", tp);
 				}
 				paths.remove(tp);
 				if(paths.isEmpty()) {
 					this.dlazdic.remove(session);
+					logger.info("{} listens for nothing else", session);
 				}
 				this.unuseCache(path);
 				

@@ -1,7 +1,6 @@
 package cz.hack.zoorilla;
 
 import com.google.common.base.Charsets;
-import cz.hack.zoorilla.notify.NotificationBridge;
 import cz.hack.zoorilla.notify.NotificationBroker;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -14,17 +13,17 @@ import org.slf4j.LoggerFactory;
 public class App {
 	
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	private static final int PORT = 8080;
 
     public static void main(String[] args) throws Exception {
         TestingServer zooServer = new TestingServer(2181);
+		
 		
         CuratorFramework client = CuratorFrameworkFactory.newClient("localhost:2181", new RetryNTimes(Integer.MAX_VALUE, 1000));
         client.start();
         client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/a/b/c", "xxx".getBytes(Charsets.UTF_8));
         
-		
 		NotificationBroker w = new NotificationBroker(client);
-		NotificationBridge bridge = new NotificationBridge(client, w);
         
 		ServerService server = new ServerService(client, w);
         server.start();

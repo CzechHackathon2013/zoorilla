@@ -1,4 +1,5 @@
 client/static/src/coffee/*.js
+client/tmp
 *.swp
 zoorilla-server/target/*
 
