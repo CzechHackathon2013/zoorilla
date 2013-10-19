@@ -1,0 +1,9 @@
+<h1>Node details</h1>
+<div class="alert alert-success" ng-show="flashSuccess">{{flashSuccess}}</div>
+<div class="alert alert-info" ng-show="flashInfo">{{flashInfo}}</div>
+<div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>
+<p><input type="text" ng-model="node.name"></p>
+<p>
+    <pre>{{node.data}}</pre>
+</p>
+<button ng-click="save()">Save</button>

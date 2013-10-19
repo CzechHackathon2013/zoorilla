@@ -8,6 +8,10 @@ main.config ($routeProvider) ->
        templateUrl: "static/templates/tree.html",
        controller: TreeController,
     })
+    .when("/node", {
+       templateUrl: "static/templates/node.html",
+       controller: NodeController,
+    })
     .when("/settings", {
        templateUrl: "static/templates/settings.html",
        controller: SettingsController,
