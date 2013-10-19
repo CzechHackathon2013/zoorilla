@@ -7,32 +7,109 @@ GET /0/zoorilla/
 < 200
 
 
-
 GET /0/children/
 < 200
 < Content-Type: application/json
-["a", "b"]
+["a", "b", "non-existent"]
+
 
 GET /0/children/a/
 < 200
 < Content-Type: application/json
-["a", "b"]
+[]
 
 
-GET /0/children/a/a/
+GET /0/children/b/
 < 200
 < Content-Type: application/json
-["a"]
+["c", "d"]
 
-GET /0/children/a/b/
+
+GET /0/children/b/c/
 < 200
 < Content-Type: application/json
 []
 
-GET /0/children/a/a/a/
-< 200
+
+GET /0/children/x/
+< 404
 < Content-Type: application/json
-[]
+
+
+GET /0/children/b/x/
+< 404
+
+
+PUT /0/node/
+< 400
+
+
+PUT /0/node/a/
+< 400
+
+
+PUT /0/node/p/
+< 400
+
+
+PUT /0/node/
+> Content-Type: application/json
+{"type": "ephemeral"}
+< 403
+
+
+PUT /0/node/a/
+> Content-Type: application/json
+{"type": "ephemeral"}
+< 403
+
+
+PUT /0/node/p/
+> Content-Type: application/json
+{"type": "ephemeral"}
+< 200
+
+
+PUT /0/node/q/
+> Content-Type: application/json
+{"type": "persistant"}
+< 200
+
+
+PUT /0/node/q/
+> Content-Type: application/json
+{"type": "bad type"}
+< 200
+
+
+PUT /0/node/p/e/t/e/r/
+> Content-Type: application/json
+{"type": "ephemeral"}
+< 200
+
+
+--- good ---
+POST /0/node/a/
+> Content-Type: aplication/text; charset=utf-8
+> X-Zoo-Original-Version: 1
+raw data
+< 200
+
+
+--- bad version ---
+POST /0/node/b/
+> Content-Type: aplication/text; charset=utf-8
+> X-Zoo-Original-Version:  1
+raw data
+< 409
+
+
+--- not exists ---
+POST /0/node/xxx/
+> Content-Type: aplication/text; charset=utf-8
+> X-Zoo-Original-Version:  1
+raw data
+< 404
 
 
 --- good ---
@@ -40,24 +117,40 @@ GET /0/node/a/
 < 200
 < Content-Type: aplication/text; charset=utf-8
 < X-Zoo-Version:  1
-raw data a
+raw data
 
 
-GET /0/node/a/a/
+--- not exist ---
+GET /0/node/non-existent/
+< 404
+
+
+--- good ---
+DELETE /0/node/a/
+> X-Zoo-Original-Version: 1
 < 200
-< Content-Type: aplication/text; charset=utf-8
-< X-Zoo-Version:  1
-raw data a/a
 
 
-GET /0/node/a/b/
-< 200
-< Content-Type: aplication/text; charset=utf-8
-< X-Zoo-Version:  1
-raw data a/b
+--- not exist ---
+DELETE /0/node/non-existent/
+> X-Zoo-Original-Version: 1
+< 404
 
-GET /0/node/a/a/a/
-< 200
-< Content-Type: aplication/text; charset=utf-8
-< X-Zoo-Version:  1
-raw data a/a/a
+
+--- root ---
+DELETE /0/node/
+> X-Zoo-Original-Version: 1
+< 403
+
+
+--- bad request - no original version number provided ---
+DELETE /0/node/a/
+< 400
+
+
+--- bad request ---
+DELETE /0/node/xxx/
+> X-Zoo-Original-Version: bad
+< 400
+
+
