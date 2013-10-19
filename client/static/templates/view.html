@@ -3,26 +3,13 @@
         <h3>Tree</h3>
         <table>
             <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <span ng-click="addNode('')" class="btn btn-xs btn-success">add</span>
+                <td style="width:250px;">
+                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">/</a>&nbsp;&nbsp;<span ng-click="addNode(node)" class="glyphicon glyphicon-file"></span></span>
                 </td>
             </tr>
             <tr ng-repeat="node in tree">
                 <td style="width:250px;">
-                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">{{node}}</a>
-                </td>
-                <td>
-                    <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]" ng-show="tree_children_button[node]" class="btn btn-xs btn-warning"></span>
-                </td>
-                <td>
-                    <span ng-click="addNode(node)" class="btn btn-xs btn-success">add</span></li>
-                </td>
-                <td>
-                    <span ng-click="removeNode(node)" class="btn btn-xs btn-danger">rm</span>
+                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">{{node}}</a>&nbsp;&nbsp;<span ng-click="showHideChildren(node)" ng-show="tree_children_button[node]" class="glyphicon glyphicon-{{tree_children_button[node]}}"></span> <span ng-click="addNode(node)" class="glyphicon glyphicon-file"></span> <span ng-click="removeNode(node)" class="glyphicon glyphicon-trash"></span>
                 </td>
             <tr>
         </table>

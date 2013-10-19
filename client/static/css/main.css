@@ -21,3 +21,9 @@ input[type=file] {
 .pre-scrollable {
     height: 340px;
 }
+
+.glyphicon {
+    font-size: smaller;
+    color: #cccccc;
+}
+
