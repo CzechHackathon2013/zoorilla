@@ -10,7 +10,7 @@ GET /0/zoorilla/
 GET /0/children/
 < 200
 < Content-Type: application/json
-["a", "b", "non-existent"]
+["a", "b", "node-save-test"]
 
 
 GET /0/children/a/
@@ -105,7 +105,7 @@ raw data
 
 
 --- not exists ---
-POST /0/node/xxx/
+POST /0/node/node-save-test/
 > Content-Type: aplication/text; charset=utf-8
 > X-Zoo-Original-Version:  1
 raw data
@@ -114,6 +114,14 @@ raw data
 
 --- good ---
 GET /0/node/a/
+< 200
+< Content-Type: aplication/text; charset=utf-8
+< X-Zoo-Version:  1
+raw data
+
+
+--- good ---
+GET /0/node/node-save-test/
 < 200
 < Content-Type: aplication/text; charset=utf-8
 < X-Zoo-Version:  1
