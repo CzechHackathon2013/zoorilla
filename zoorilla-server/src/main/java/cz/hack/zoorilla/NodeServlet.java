@@ -38,4 +38,19 @@ public class NodeServlet extends HttpServlet {
             throw new ServletException(ex);
         }
     }
+
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String nodePath = req.getPathInfo();
+		try {
+			client.delete().forPath(nodePath);
+			resp.setStatus(HttpServletResponse.SC_OK);
+		} catch (KeeperException.NoNodeException ex) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (Exception ex)  {
+            throw new ServletException(ex);
+        }
+	}
+	
+	
 }

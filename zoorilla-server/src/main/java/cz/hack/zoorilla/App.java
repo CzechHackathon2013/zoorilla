@@ -11,8 +11,13 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
+	
+	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	private static final int PORT = 8080;
 
     public static void main(String[] args) throws Exception {
         TestingServer zooServer = new TestingServer(2181);
@@ -21,7 +26,7 @@ public class App {
         client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/a/b/c", "xxx".getBytes(Charsets.UTF_8));
         
         
-        Server server = new Server(8080);
+        Server server = new Server(PORT);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setSessionHandler(new SessionHandler(new HashSessionManager()));
         context.addServlet(new ServletHolder(new NodeServlet(client)), "/0/node/*");
@@ -29,6 +34,7 @@ public class App {
         context.setContextPath("/");
         server.setHandler(context);
         server.start();
+		logger.info("Zoorila started on port "+PORT);
         server.join();
     }
 }
