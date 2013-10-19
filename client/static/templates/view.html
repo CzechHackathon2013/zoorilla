@@ -35,7 +35,7 @@
         <form>
             <div class="form-group">
                 <pre ng-show="node.dataEdit == null" class="pre-scrollable">{{node.data}}</pre>
-                <textarea ng-show="node.dataEdit != null" class="form-control" rows="15">{{node.dataEdit}}</textarea>
+                <textarea ng-show="node.dataEdit != null" class="form-control" rows="15" ng-model="node.data"></textarea>
             </div>
             <button ng-click="edit()" ng-show="node.dataEdit == null" class="btn btn-default">Edit</button>
             <button ng-click="save()" ng-show="node.dataEdit != null" class="btn btn-default">Save</button>

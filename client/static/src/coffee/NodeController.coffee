@@ -17,7 +17,14 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
         $scope.node.dataEdit = $scope.node.data
 
     $scope.save = ->
-        $http.post(window.settings.connection + "/0/node" + $scope.node.name + "/", $scope.node.data)
+        $http({
+            url: window.settings.connection + "/0/node" + $scope.node.name + "/",
+            method: "POST",
+            data: $scope.node.data,
+            headers: {
+                'X-Zoo-Original-Version': '-1',
+            },
+        })
             .success () ->
                 $scope.flashSuccess = 'Node data saved'
                 $timeout ->
