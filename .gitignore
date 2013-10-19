@@ -1,3 +1,8 @@
 client/static/src/coffee/*.js
 *.swp
 zoorilla-server/target/*
+
+zoorilla-server/.classpath
+zoorilla-server/.project
+zoorilla-server/.settings
+zoorilla-server/bin

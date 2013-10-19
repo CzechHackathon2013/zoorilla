@@ -27,8 +27,6 @@ public class ChildrenServlet extends HttpServlet{
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             List<String> children = client.getChildren().forPath(req.getPathInfo());
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.setContentType("application/json; charset=UTF-8");
             JSONStringer writer = new JSONStringer();
             writer.array();
             for(String ch: children) {
@@ -36,6 +34,8 @@ public class ChildrenServlet extends HttpServlet{
             }
             writer.endArray();
             byte[] b = writer.toString().getBytes(Charsets.UTF_8);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.setContentType("application/json; charset=UTF-8");
             resp.setContentLength(b.length);
             resp.getOutputStream().write(b);
             resp.getOutputStream().flush();

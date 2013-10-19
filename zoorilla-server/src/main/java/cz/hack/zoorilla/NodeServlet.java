@@ -6,8 +6,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 /**
  *
@@ -37,6 +41,33 @@ public class NodeServlet extends HttpServlet {
         } catch (Exception ex)  {
             throw new ServletException(ex);
         }
+    }
+    
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+    		throws ServletException, IOException {
+    	String path = req.getPathInfo();
+    	CreateMode mode = this.getCreateMode(req);
+    	if(mode == null) {
+    		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    		return;
+    	}
+    	try {
+			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(path);
+    	} catch (KeeperException.NodeExistsException e) {
+    		resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
+    }
+    
+    private CreateMode getCreateMode(HttpServletRequest req) {
+    	try {
+			JSONObject json = new JSONObject(new JSONTokener(req.getReader()));
+			return(CreateMode.valueOf(json.getString("type").toUpperCase()));
+		} catch (Exception e) {
+			return(null);
+		}
     }
 
 	@Override
