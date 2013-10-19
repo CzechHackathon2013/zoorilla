@@ -1,20 +1,19 @@
 package cz.hack.zoorilla;
 
-import com.google.common.base.Charsets;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.utils.PathUtils;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.json.JSONStringer;
+
+import com.google.common.base.Charsets;
 
 /**
  *
@@ -34,10 +33,6 @@ public class ChildrenServlet extends HttpServlet{
 		resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
 	}
 	
-    private CreateMode getMode(Stat stat) {
-    	return(stat.getEphemeralOwner() == 0 ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL);
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	this.allowCrossOrigin(resp);
@@ -55,11 +50,7 @@ public class ChildrenServlet extends HttpServlet{
             }
             for(String ch: children) {
             	this.client.getChildren().storingStatIn(stat).forPath(bp + ch);
-            	writer.object();
-                writer.key("name").value(ch);
-                writer.key("type").value(this.getMode(stat).name().toLowerCase());
-                writer.key("leaf").value(stat.getNumChildren() == 0);
-                writer.endObject();
+            	Util.generateJSONNodeInfo(ch, stat, writer);
             }
             writer.endArray();
             byte[] b = writer.toString().getBytes(Charsets.UTF_8);
