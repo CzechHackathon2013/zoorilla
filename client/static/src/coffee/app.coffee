@@ -50,6 +50,12 @@ TreeController = ($scope, $http) ->
             $scope.hideChildren(path)
             $scope.tree_open = $scope.tree_open.remove(path)
 
+    $scope.showHideChildrenLabel = (path) ->
+        if $scope.tree_open.indexOf(path) == -1
+            return "(+)"
+        else
+            return "(-)"
+
     $scope.showChildren "/"
 
 SettingsController = ($scope, $routeParams, $http) ->
