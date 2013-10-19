@@ -61,5 +61,11 @@
             <artifactId>json</artifactId>
             <version>20090211</version>
         </dependency>
+        <dependency>
+            <artifactId>slf4j-api</artifactId>
+            <groupId>org.slf4j</groupId>
+            <type>jar</type>
+            <version>1.6.4</version>
+        </dependency>
     </dependencies>
 </project>
