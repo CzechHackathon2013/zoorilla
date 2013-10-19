@@ -1,6 +1,5 @@
 package cz.hack.zoorilla;
 
-import cz.hack.zoorilla.notify.NotificationServlet;
 import com.google.common.base.Charsets;
 import cz.hack.zoorilla.notify.NotificationBroker;
 import org.apache.curator.framework.CuratorFramework;
@@ -8,11 +7,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.CreateMode;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.HashSessionManager;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,23 +23,10 @@ public class App {
         client.start();
         client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/a/b/c", "xxx".getBytes(Charsets.UTF_8));
         
-		
-		
 		NotificationBroker w = new NotificationBroker(client);
         
 		ServerService server = new ServerService(client, w);
-        Server server = new Server(PORT);
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setSessionHandler(new SessionHandler(new HashSessionManager()));
-        context.addServlet(new ServletHolder(new NodeServlet(client)), "/0/node/*");
-        context.addServlet(new ServletHolder(new ChildrenServlet(client)), "/0/children/*");
-		context.addServlet(new ServletHolder(new NotificationServlet(w)), "/0/notify/");
-		context.addServlet(new ServletHolder(new IdentificationServlet()), "/0/zoorilla/");
-        context.setContextPath("/");
-        server.setHandler(context);
         server.start();
-		logger.info("Zoorilla started on port "+PORT);
-        server.join();
 		
 		logger.info("Zoorilla started on port "+server.getPort());
         
