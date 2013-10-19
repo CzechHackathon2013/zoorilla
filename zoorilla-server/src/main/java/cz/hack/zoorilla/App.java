@@ -34,7 +34,7 @@ public class App {
         context.setContextPath("/");
         server.setHandler(context);
         server.start();
-		logger.info("Zoorila started on port "+PORT);
+		logger.info("Zoorilla started on port "+PORT);
         server.join();
     }
 }

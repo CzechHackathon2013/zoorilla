@@ -26,7 +26,8 @@ public class ChildrenServlet extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            List<String> children = client.getChildren().forPath(req.getPathInfo());
+			String nodePath = Path.fromRequest(req);
+			List<String> children = client.getChildren().forPath(nodePath);
             JSONStringer writer = new JSONStringer();
             writer.array();
             for(String ch: children) {
@@ -39,6 +40,8 @@ public class ChildrenServlet extends HttpServlet{
             resp.setContentLength(b.length);
             resp.getOutputStream().write(b);
             resp.getOutputStream().flush();
+		} catch(IllegalArgumentException ex) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (KeeperException.NoNodeException ex) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception ex) {

@@ -27,15 +27,17 @@ public class NodeServlet extends HttpServlet {
 	
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String nodePath = req.getPathInfo();
         try {
-            Stat stat = new Stat();
+			String nodePath = Path.fromRequest(req);
+			Stat stat = new Stat();
             client.getChildren().storingStatIn(stat).forPath(nodePath);
             byte[] nodeData = client.getData().forPath(nodePath);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setHeader("X-Zoo-Version", String.valueOf(stat.getVersion()));
             resp.getOutputStream().write(nodeData);
             resp.getOutputStream().flush();
+		} catch(IllegalArgumentException ex) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (KeeperException.NoNodeException ex) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception ex)  {
@@ -72,10 +74,12 @@ public class NodeServlet extends HttpServlet {
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String nodePath = req.getPathInfo();
 		try {
+			String nodePath = Path.fromRequest(req);
 			client.delete().forPath(nodePath);
 			resp.setStatus(HttpServletResponse.SC_OK);
+		} catch(IllegalArgumentException ex) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (KeeperException.NoNodeException ex) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception ex)  {
