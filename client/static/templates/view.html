@@ -1,10 +1,10 @@
 <div class="row">
     <div class="col-md-4" ng-controller="TreeController">
-        <h3>Tree</h3>
+        <h4>{{settings.connection}}</h4>
         <table>
             <tr>
                 <td style="width:250px;">
-                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">/</a>&nbsp;&nbsp;<span ng-click="addNode(node)" class="glyphicon glyphicon-file"></span></span>
+                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">/</a>&nbsp;&nbsp;<span ng-click="addNode('')" class="glyphicon glyphicon-file"></span></span>
                 </td>
             </tr>
             <tr ng-repeat="node in tree">
@@ -15,7 +15,7 @@
         </table>
     </div>
     <div class="col-md-8" ng-controller="NodeController">
-        <h3>Node</h3>
+        <h4>{{node.name}}</h4>
         <div class="alert alert-success" ng-show="flashSuccess">{{flashSuccess}}</div>
         <div class="alert alert-info" ng-show="flashInfo">{{flashInfo}}</div>
         <div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>

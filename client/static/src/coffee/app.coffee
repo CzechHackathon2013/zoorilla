@@ -25,6 +25,8 @@ String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 TreeController = ($scope, $http, $rootScope) ->
+    $scope.settings = window.settings
+
     if window.tree?
         $scope.tree = window.tree
     else $scope.tree = []
@@ -93,11 +95,13 @@ TreeController = ($scope, $http, $rootScope) ->
 
     $scope.addNode = (node) ->
         suffix = prompt "Name of new node"
+        if not suffix
+            return
         node = node + "/" + suffix
         $http({
             url: window.settings.connection+"/0/node"+node+"/",
             method: "PUT",
-            data: JSON.stringify({"type": "persistant"}), # {type: "ephemeral"}
+            data: JSON.stringify({"type": "persistent"}), # {type: "ephemeral"}
             headers: {'Content-Type': 'application/json'},
         })
             .success ->
