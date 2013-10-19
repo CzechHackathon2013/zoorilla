@@ -83,11 +83,13 @@ TreeController = ($scope, $http) ->
                 $scope.tree_children_button[path] = ""
 
     $scope.removeNode = (node) ->
-        confirm "Really remove node '"+node+"'"
-        $http.delete(window.settings.connection+"/0/node"+node+"/")
-            .success ->
-                $scope.tree = $scope.tree.remove(node)
-                $scope.tree_open = $scope.tree_open.remove(node)
+        if confirm "Really remove node '"+node+"'"
+            $http.delete(window.settings.connection+"/0/node"+node+"/")
+                .success ->
+                    for element in $scope.tree
+                        if element.indexOf(node) == 0
+                            $scope.tree = $scope.tree.remove element
+                            $scope.tree_open = $scope.tree_open.remove element
 
     if $scope.tree.length == 0
         $scope.showChildren "/"
