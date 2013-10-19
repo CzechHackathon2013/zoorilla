@@ -95,6 +95,8 @@ TreeController = ($scope, $http, $rootScope) ->
 
     $scope.addNode = (node) ->
         suffix = prompt "Name of new node"
+        if not suffix
+            return
         node = node + "/" + suffix
         $http({
             url: window.settings.connection+"/0/node"+node+"/",
