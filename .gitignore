@@ -1,1 +1,3 @@
 client/static/src/coffee/*.js
+*.swp
+
