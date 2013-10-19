@@ -1,0 +1,19 @@
+hr {
+    margin: 3px 0;
+}
+p {
+    margin: 0;
+}
+
+.navbar-static-top {
+  margin-bottom: 19px;
+}
+
+#footer {
+    margin-top: 80px;
+    margin-bottom: 20px;
+}
+
+input[type=file] {
+    width: 140px;
+}
