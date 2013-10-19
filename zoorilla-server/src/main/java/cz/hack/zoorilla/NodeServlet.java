@@ -1,15 +1,18 @@
 package cz.hack.zoorilla;
 
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.utils.PathUtils;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -77,8 +80,12 @@ public class NodeServlet extends HttpServlet {
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			String nodePath = Path.fromRequest(req);
-			client.delete().forPath(nodePath);
-			resp.setStatus(HttpServletResponse.SC_OK);
+			if (! Path.isRoot(nodePath)) {
+				deleteChildren(client.getZookeeperClient().getZooKeeper(), nodePath, true);
+				resp.setStatus(HttpServletResponse.SC_OK);
+			} else {
+				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			}			
 		} catch(IllegalArgumentException ex) {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (KeeperException.NoNodeException ex) {
@@ -89,4 +96,30 @@ public class NodeServlet extends HttpServlet {
 	}
 	
 	
+	public static void deleteChildren(ZooKeeper zookeeper, String path, boolean deleteSelf) throws InterruptedException, KeeperException {
+        PathUtils.validatePath(path);
+
+        List<String> children = zookeeper.getChildren(path, false);
+        for ( String child : children )
+        {
+            String fullPath = ZKPaths.makePath(path, child);
+            deleteChildren(zookeeper, fullPath, true);
+        }
+
+        if ( deleteSelf )
+        {
+            try
+            {
+                zookeeper.delete(path, -1);
+            }
+            catch ( KeeperException.NotEmptyException e ) {
+                //someone has created a new child since we checked ... delete again.
+                deleteChildren(zookeeper, path, deleteSelf);
+            }
+            catch ( KeeperException.NoNodeException e )
+            {
+                // ignore... someone else has deleted the node it since we checked
+            }
+        }
+    }
 }
