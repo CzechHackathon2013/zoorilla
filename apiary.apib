@@ -1,0 +1,63 @@
+HOST: http://zoorila-client.github.io/
+
+--- zoorila ---
+
+
+GET /0/zoorilla/
+< 200
+
+
+
+GET /0/children/
+< 200
+< Content-Type: application/json
+["a", "b"]
+
+GET /0/children/a/
+< 200
+< Content-Type: application/json
+["a", "b"]
+
+
+GET /0/children/a/a/
+< 200
+< Content-Type: application/json
+["a"]
+
+GET /0/children/a/b/
+< 200
+< Content-Type: application/json
+[]
+
+GET /0/children/a/a/a/
+< 200
+< Content-Type: application/json
+[]
+
+
+--- good ---
+GET /0/node/a/
+< 200
+< Content-Type: aplication/text; charset=utf-8
+< X-Zoo-Version:  1
+raw data a
+
+
+GET /0/node/a/a/
+< 200
+< Content-Type: aplication/text; charset=utf-8
+< X-Zoo-Version:  1
+raw data a/a
+
+
+GET /0/node/a/b/
+< 200
+< Content-Type: aplication/text; charset=utf-8
+< X-Zoo-Version:  1
+raw data a/b
+
+GET /0/node/a/a/a/
+< 200
+< Content-Type: aplication/text; charset=utf-8
+< X-Zoo-Version:  1
+raw data a/a/a
