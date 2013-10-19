@@ -74,9 +74,9 @@ TreeController = ($scope, $http) ->
                 # console.log data
                 if data.length != 0
                     if $scope.tree_open.indexOf(path) == -1
-                        $scope.tree_children_button[path] = "(+)"
+                        $scope.tree_children_button[path] = "show"
                     else
-                        $scope.tree_children_button[path] = "(-)"
+                        $scope.tree_children_button[path] = "collapse"
                 else
                     $scope.tree_children_button[path] = ""
             .error ->
@@ -90,6 +90,20 @@ TreeController = ($scope, $http) ->
                         if element.indexOf(node) == 0
                             $scope.tree = $scope.tree.remove element
                             $scope.tree_open = $scope.tree_open.remove element
+
+    $scope.addNode = (node) ->
+        suffix = prompt "Name of new node"
+        node = node + "/" + suffix
+        $http({
+            url: window.settings.connection+"/0/node"+node+"/",
+            method: "PUT",
+            data: JSON.stringify({"type": "persistant"}), # {type: "ephemeral"}
+            headers: {'Content-Type': 'application/json'},
+        })
+            .success ->
+                $scope.tree.push node
+                $scope.tree.sort()
+  
 
     if $scope.tree.length == 0
         $scope.showChildren "/"

@@ -24,12 +24,15 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         TestingServer zooServer = new TestingServer(2181);
+		
+		
         CuratorFramework client = CuratorFrameworkFactory.newClient("localhost:2181", new RetryNTimes(Integer.MAX_VALUE, 1000));
         client.start();
         client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/a/b/c", "xxx".getBytes(Charsets.UTF_8));
         
 		
-		NotificationBroker w = new NotificationBroker();
+		
+		NotificationBroker w = new NotificationBroker(client);
 		NotificationBridge bridge = new NotificationBridge(client, w);
         
         Server server = new Server(PORT);
@@ -43,5 +46,7 @@ public class App {
         server.start();
 		logger.info("Zoorilla started on port "+PORT);
         server.join();
+		
+		
     }
 }
