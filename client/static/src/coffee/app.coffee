@@ -4,12 +4,12 @@ settings =
 
 main.config ($routeProvider) -> 
     $routeProvider
-    .when("/:path", {
-       templateUrl: "static/templates/view.html",
-    })
     .when("/settings", {
        templateUrl: "static/templates/settings.html",
        controller: SettingsController,
+    })
+    .when("/:path", {
+       templateUrl: "static/templates/view.html",
     })
     .otherwise {redirectTo: "/"}
 
