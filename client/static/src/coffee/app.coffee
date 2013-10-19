@@ -1,4 +1,4 @@
-main = angular.module 'main', ["angularTreeview"]
+main = angular.module 'main', []
 settings = 
     connection: window.localStorage.getItem 'zoorilla_connection'
 
@@ -14,19 +14,40 @@ main.config ($routeProvider) ->
     })
     .otherwise {redirectTo: "/"}
 
+Array.prototype.pop = (i) ->
+    if i?
+        return this.splice(i, 1)[0];
+    return this.splice(this.length-1, 1)[0];
+
+
+Array.prototype.remove = (r) ->
+    out = []
+    for e in this
+        if e != r
+            out.push e
+    return out
+
+
 TreeController = ($scope, $http) ->
     $scope.tree = []
-    $http.get(window.settings.connection+"/0/children/")
-        .success (data) ->
-            $scope.treedata = []
-            for element in data
-                object =
-                    label: element
-                    id: element
-                    children: []
-                $scope.treedata.push object
-                    
+    $scope.showChildren = (path) ->
+        $http.get(window.settings.connection+"/0/children"+path)
+            .success (data) ->
+                for element in data
+                    $scope.tree.push path+element
+                $scope.tree.sort()
 
+    $scope.hideChildren = (path) ->
+        res = []
+        data = $scope.tree
+        for node in data
+            if node.indexOf(path) == -1
+                res.push node
+        $scope.tree = res
+
+    $scope.showChildren "/"
+    # $scope.showChildren "/b/"
+    # $scope.hideChildren "/b/c"
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams
