@@ -5,23 +5,23 @@
 package cz.hack.zoorilla.notify;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 
 /**
  *
+ * @param <E> Type of stored cache
  * @author pcipov
  */
-public class CacheReference {
-	private PathChildrenCache cache;
+public class CacheReference<E> {
+	private E cache;
 	
 	private AtomicInteger used;
 
-	public CacheReference(PathChildrenCache cache) {
+	public CacheReference(E cache) {
 		this.cache = cache;
 		this.used = new AtomicInteger(0);
 	}
 
-	public PathChildrenCache getCache() {
+	public E getCache() {
 		return cache;
 	}
 
