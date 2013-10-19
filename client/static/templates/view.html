@@ -12,7 +12,7 @@
         <div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>
         <pre ng-show="node.dataEdit == null">{{node.data}}</pre>
         <p ng-show="node.dataEdit != null">
-            <textarea>{{node.dataEdit}}</textarea>
+            <textarea class="form-control">{{node.dataEdit}}</textarea>
         </p>
         <button ng-click="edit()" ng-show="node.dataEdit == null">Edit</button>
         <button ng-click="save()" ng-show="node.dataEdit != null">Save</button>
