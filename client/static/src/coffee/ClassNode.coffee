@@ -13,9 +13,9 @@ class NodeStorage
         @nodes.push node
 
     deleteById: (id) ->
-        for i in [0..this.length-1]
-            if this[i]? and this[i].id == id
-                this.pop i
+        for i in [0..@nodes.length-1]
+            if @nodes[i]? and @nodes[i].id == id
+                @nodes.pop i
 
     get: (name) ->
         for node in @nodes
