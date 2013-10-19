@@ -2,6 +2,9 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
     $scope.node = {}
     $scope.node.name = $routeParams.path.replace(/---/g, "/")
 
+    $scope.$on 'closeEditMode', () ->
+        $scope.node.dataEdit = null
+
     $scope.$watch 'node.name', ->
         if $scope.node && $scope.node.name
             $http.get(window.settings.connection + "/0/node" + $scope.node.name + "/")

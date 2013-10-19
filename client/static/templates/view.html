@@ -13,7 +13,7 @@
             </tr>
             <tr ng-repeat="node in tree">
                 <td style="width:250px;">
-                    <a ng-href="#{{node.replaceslashes('---')}}">{{node}}</a>
+                    <a ng-href="#{{node.replaceslashes('---')}}" ng-click="nodeClick()">{{node}}</a>
                 </td>
                 <td>
                     <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]" ng-show="tree_children_button[node]" class="btn btn-xs btn-warning"></span>

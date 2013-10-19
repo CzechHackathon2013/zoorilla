@@ -24,7 +24,7 @@ Array.prototype.remove = (r) ->
 String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
-TreeController = ($scope, $http) ->
+TreeController = ($scope, $http, $rootScope) ->
     if window.tree?
         $scope.tree = window.tree
     else $scope.tree = []
@@ -104,6 +104,8 @@ TreeController = ($scope, $http) ->
                 $scope.tree.push node
                 $scope.tree.sort()
   
+    $scope.nodeClick = () ->
+        $rootScope.$broadcast 'closeEditMode'
 
     if $scope.tree.length == 0
         $scope.showChildren "/"
