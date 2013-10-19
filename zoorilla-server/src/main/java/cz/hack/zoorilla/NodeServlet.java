@@ -51,6 +51,7 @@ public class NodeServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentLength(nodeData.length);
             resp.setHeader("X-Zoo-Version", String.valueOf(stat.getVersion()));
+            resp.setHeader("X-Zoo-Node-Type", this.getMode(stat).toString().toLowerCase());
             resp.getOutputStream().write(nodeData);
             resp.getOutputStream().flush();
 		} catch(IllegalArgumentException ex) {
@@ -60,6 +61,10 @@ public class NodeServlet extends HttpServlet {
         } catch (Exception ex)  {
             throw new ServletException(ex);
         }
+    }
+    
+    private CreateMode getMode(Stat stat) {
+    	return(stat.getEphemeralOwner() == 0 ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL);
     }
     
     @Override
@@ -74,7 +79,6 @@ public class NodeServlet extends HttpServlet {
 			String nodePath = Path.fromRequest(req);
 			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(nodePath, NO_DATA);
 		} catch(IllegalArgumentException ex) {
-			ex.printStackTrace();
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
     	} catch (KeeperException.NodeExistsException e) {
     		resp.sendError(HttpServletResponse.SC_FORBIDDEN);

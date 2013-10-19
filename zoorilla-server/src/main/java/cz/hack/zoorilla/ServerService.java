@@ -43,7 +43,8 @@ public class ServerService {
         context.setSessionHandler(new SessionHandler(new HashSessionManager()));
         context.addServlet(new ServletHolder(new NodeServlet(client)), "/0/node/*");
         context.addServlet(new ServletHolder(new ChildrenServlet(client)), "/0/children/*");
-		context.addServlet(new ServletHolder(new NotificationServlet(broker)), "/0/notify");
+		context.addServlet(new ServletHolder(new NotificationServlet(broker)), "/0/notify/");
+		context.addServlet(new ServletHolder(new IdentificationServlet()), "/0/zoorilla/");
         context.setContextPath("/");
         server.setHandler(context);
         server.start();
