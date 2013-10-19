@@ -18,11 +18,6 @@ main.config ($routeProvider) ->
     })
     .otherwise {redirectTo: "/"}
 
-Array.prototype.pop = (i) ->
-    if i?
-        return this.splice(i, 1)[0];
-    return this.splice(this.length-1, 1)[0];
-
 
 Array.prototype.remove = (r) ->
     out = []
@@ -34,6 +29,7 @@ Array.prototype.remove = (r) ->
 
 TreeController = ($scope, $http) ->
     $scope.tree = []
+    $scope.tree_open = []
     $scope.showChildren = (path) ->
         $http.get(window.settings.connection+"/0/children"+path)
             .success (data) ->
@@ -45,13 +41,19 @@ TreeController = ($scope, $http) ->
         res = []
         data = $scope.tree
         for node in data
-            if node.indexOf(path) == -1
+            if node.indexOf(path+"/") == -1
                 res.push node
         $scope.tree = res
 
+    $scope.showHideChildren = (path) ->
+        if $scope.tree_open.indexOf(path) == -1
+            $scope.showChildren(path+"/")
+            $scope.tree_open.push path
+        else
+            $scope.hideChildren(path)
+            $scope.tree_open = $scope.tree_open.remove(path)
+
     $scope.showChildren "/"
-    # $scope.showChildren "/b/"
-    # $scope.hideChildren "/b/c"
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams

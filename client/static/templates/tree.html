@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <h3>Tree</h3>
         <ul>
-            <li ng-repeat="node in tree">{{node}}</li>
+            <li ng-repeat="node in tree" ng-click="showHideChildren(node)">{{node}}</li>
         </ul>
     </div>
     <div class="col-md-8">
