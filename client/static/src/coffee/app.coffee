@@ -69,8 +69,8 @@ TreeController = ($scope, $http, $rootScope) ->
         $http.get(window.settings.connection+"/0/children"+path)
             .success (data) ->
                 for element in data
-                    $scope.tree.push path+element
-                    $scope.showHideChildrenLabel(path+element)
+                    $scope.tree.push path+element.name
+                    $scope.showHideChildrenLabel(path+element.name)
                 $scope.tree.sort()
 
     $scope.hideChildren = (path) ->
