@@ -14,7 +14,12 @@ public class NotificationBridge {
 	public NotificationBridge(CuratorFramework client, NotificationBroker broker) {
 		this.client = client;
 		this.broker = broker;
+		registerListenerToZoooooooooooooooooo();
+	}
+
+	private void registerListenerToZoooooooooooooooooo() {
+		
 	}
 	
-	//TODO register to zook & notify when any chynge 
+	
 }
