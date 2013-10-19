@@ -25,8 +25,19 @@ String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 TreeController = ($scope, $http) ->
-    $scope.tree = []
-    $scope.tree_open = []
+    if window.tree?
+        $scope.tree = window.tree
+    else $scope.tree = []
+    if window.tree_open?
+        $scope.tree_open = window.tree_open
+    else $scope.tree_open = []
+
+    $scope.$watch "tree", ->
+        window.tree = $scope.tree
+
+    $scope.$watch "tree_open", ->
+        window.tree_open = $scope.tree_open
+
     $scope.showChildren = (path) ->
         $http.get(window.settings.connection+"/0/children"+path)
             .success (data) ->
