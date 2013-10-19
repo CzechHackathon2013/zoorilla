@@ -25,7 +25,7 @@ public class NotificationServlet extends WebSocketServlet {
 	
 	@Override
 	public void configure(WebSocketServletFactory factory) {
-		factory.getPolicy().setIdleTimeout(10000);
+		factory.getPolicy().setIdleTimeout(14628725494L);
 		factory.setCreator(new WebSocketCreator() {
 
 			public Object createWebSocket(UpgradeRequest ur, UpgradeResponse ur1) {

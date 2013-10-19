@@ -11,6 +11,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
 import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class NotificationBroker {
 	
 	private final static Logger logger = LoggerFactory.getLogger(NotificationBroker.class);
+	
 	private final CuratorFramework client;
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	private Map<String, CacheReference> caches = Maps.newHashMap();
@@ -35,10 +37,14 @@ public class NotificationBroker {
 	}
 	
 	public void remove(Session session) {
-		Set<TypePath> paths = this.dlazdic.remove(session);
-		for(TypePath tp: paths) {
-			this.zednik.get(tp).remove(session);
-			this.unuseCache(tp.getPath());
+		synchronized(this) {
+			Set<TypePath> paths = this.dlazdic.remove(session);
+			if(paths != null) {
+				for(TypePath tp: paths) {
+					this.zednik.get(tp).remove(session);
+					this.unuseCache(tp.getPath());
+				}
+			}
 		}
 	}
 	
@@ -53,15 +59,21 @@ public class NotificationBroker {
 			
 		}
 		String msg = json.toString();
-		for (Session s : this.zednik.get(tp)) {
-			try {
-				if (s.isOpen()) {
-					s.getRemote().sendStringByFuture(msg);
-				} else {
-					this.remove(s);
+		synchronized(this) {
+			Set<Session> sessions = this.zednik.get(tp);
+			if(sessions != null) {
+				for (Session s : sessions) {
+					logger.info("Notify {}", s);
+					try {
+						if (s.isOpen()) {
+							s.getRemote().sendStringByFuture(msg);
+						} else {
+							this.remove(s);
+						}
+					} catch(Exception ex) {
+						logger.error("Broadcast failed", ex);
+					}
 				}
-			} catch(Exception ex) {
-				logger.error("Broadcast failed", ex);
 			}
 		}
 	}
@@ -83,60 +95,83 @@ public class NotificationBroker {
 
 	public void removeWatcher(Session session, NotificationType type, String path) {
 		TypePath tp = new TypePath(type, path);
-		Set<Session> sessions = this.zednik.get(tp);
-		Set<TypePath> paths = this.dlazdic.get(session);
-		if(sessions != null && sessions.remove(session)) {
-			if(sessions.isEmpty()) {
-				this.zednik.remove(tp);
+		synchronized (this) {
+			Set<Session> sessions = this.zednik.get(tp);
+			Set<TypePath> paths = this.dlazdic.get(session);
+			if(sessions != null && sessions.remove(session)) {
+				if(sessions.isEmpty()) {
+					this.zednik.remove(tp);
+				}
+				paths.remove(tp);
+				if(paths.isEmpty()) {
+					this.dlazdic.remove(session);
+				}
+				this.unuseCache(path);
+				
 			}
-			paths.remove(tp);
-			if(paths.isEmpty()) {
-				this.dlazdic.remove(session);
-			}
-			this.unuseCache(path);
-			
 		}
 	}
 
 	public void registerWatcher(Session session, NotificationType type, String path) {
+		logger.info("Register watcher {} for {}:{}", new Object[] {
+			session, type, path
+		});
 		TypePath tp = new TypePath(type, path);
-		
-		CacheReference cache = this.caches.get(path);
-		if(cache == null) {
-			cache = new CacheReference(new PathChildrenCache(client, path, true, false, this.executor));
-			cache.getCache().getListenable().addListener(new PathChildrenCacheListener() {
-
-				public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-					NotificationType type;
-					switch(event.getType()) {
-						case CHILD_ADDED:
-						case CHILD_REMOVED:
-							type = NotificationType.CHILDREN;
-							break;
-						case CHILD_UPDATED:
-							type = NotificationType.DATA;
-							break;
-						default:
-							return;
-					}
-					NotificationBroker.this.notify(new TypePath(type, event.getData().getPath()));
+		CacheReference cache;
+		synchronized (this) {
+			cache = this.caches.get(path);
+			if(cache == null) {
+				logger.info("Create new Path cache");
+				cache = new CacheReference(new PathChildrenCache(client, path, true, false, this.executor));
+				try {
+					cache.getCache().start(StartMode.BUILD_INITIAL_CACHE);
+				} catch (Exception e) {
+					logger.warn("Error starting cache", e);
 				}
-			});
-			this.caches.put(path, cache);
+				cache.getCache().getListenable().addListener(new NodeListener(path));
+				this.caches.put(path, cache);
+			}
+			Set<Session> sessions = this.zednik.get(tp);
+			if(sessions == null) {
+				sessions = new HashSet<Session>();
+				this.zednik.put(tp, sessions);
+			}
+			sessions.add(session);
+			Set<TypePath> paths = this.dlazdic.get(session);
+			if(paths == null) {
+				paths = new HashSet<TypePath>();
+				this.dlazdic.put(session, paths);
+			}
+			if(paths.add(tp)) {
+				cache.incUsed();
+			}
 		}
-		Set<Session> sessions = this.zednik.get(tp);
-		if(sessions == null) {
-			sessions = new HashSet<Session>();
-			this.zednik.put(tp, sessions);
+	}
+	
+	class NodeListener implements PathChildrenCacheListener {
+		
+		private String path;
+		
+		public NodeListener(String path) {
+			this.path = path;
 		}
-		sessions.add(session);
-		Set<TypePath> paths = this.dlazdic.get(session);
-		if(paths == null) {
-			paths = new HashSet<TypePath>();
-			this.dlazdic.put(session, paths);
-		}
-		if(paths.add(tp)) {
-			cache.incUsed();
+
+		public void childEvent(CuratorFramework curator,
+				PathChildrenCacheEvent event) throws Exception {
+			logger.info("{} for {}", event.getType(), this.path);
+			NotificationType type;
+			switch(event.getType()) {
+			case CHILD_ADDED:
+			case CHILD_REMOVED:
+				type = NotificationType.CHILDREN;
+				break;
+			case CHILD_UPDATED:
+				type = NotificationType.DATA;
+				break;
+			default:
+				return;
+			}
+			NotificationBroker.this.notify(new TypePath(type, this.path));
 		}
 		
 	}
