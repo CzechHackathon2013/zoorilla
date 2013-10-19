@@ -10,7 +10,7 @@ GET /0/zoorilla/
 GET /0/children/
 < 200
 < Content-Type: application/json
-["a", "b"]
+["a", "b", "non-existent"]
 
 
 GET /0/children/a/
@@ -121,7 +121,7 @@ raw data
 
 
 --- not exist ---
-GET /0/node/xxx/
+GET /0/node/non-existent/
 < 404
 
 
@@ -132,7 +132,7 @@ DELETE /0/node/a/
 
 
 --- not exist ---
-DELETE /0/node/xxx/
+DELETE /0/node/non-existent/
 > X-Zoo-Original-Version: 1
 < 404
 
@@ -143,8 +143,8 @@ DELETE /0/node/
 < 403
 
 
---- bad request ---
-DELETE /0/node/xxx/
+--- bad request - no original version number provided ---
+DELETE /0/node/a/
 < 400
 
 
