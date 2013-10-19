@@ -2,7 +2,6 @@ package cz.hack.zoorilla;
 
 import cz.hack.zoorilla.notify.NotificationServlet;
 import com.google.common.base.Charsets;
-import cz.hack.zoorilla.notify.NotificationBridge;
 import cz.hack.zoorilla.notify.NotificationBroker;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -33,7 +32,6 @@ public class App {
 		
 		
 		NotificationBroker w = new NotificationBroker(client);
-		NotificationBridge bridge = new NotificationBridge(client, w);
         
 		ServerService server = new ServerService(client, w);
         Server server = new Server(PORT);
