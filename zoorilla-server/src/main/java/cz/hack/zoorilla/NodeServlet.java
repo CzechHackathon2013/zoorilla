@@ -1,11 +1,17 @@
 package cz.hack.zoorilla;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.PathUtils;
 import org.apache.curator.utils.ZKPaths;
@@ -67,6 +73,37 @@ public class NodeServlet extends HttpServlet {
 		}
     }
     
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        if(req.getHeader("X-Zoo-Original-Version") == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
+        try {
+            ServletInputStream reader = req.getInputStream();
+            int version = Integer.parseInt(req.getHeader("X-Zoo-Original-Version"));
+            String nodePath = Path.fromRequest(req);
+            this.client.setData().withVersion(version).forPath(nodePath, fetchData(reader));
+        } catch (KeeperException.BadVersionException ex) {
+            resp.sendError(HttpServletResponse.SC_CONFLICT);
+        } catch (KeeperException.NoNodeException ex) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (Exception ex)  {
+            throw new ServletException(ex);
+        }
+    }
+    
+    
+    private byte[] fetchData( ServletInputStream reader) throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        while(reader.read(buffer) != -1) {
+            stream.write(buffer);
+        }
+
+        return stream.toByteArray();
+    }
+
     private CreateMode getCreateMode(HttpServletRequest req) {
     	try {
 			JSONObject json = new JSONObject(new JSONTokener(req.getReader()));
