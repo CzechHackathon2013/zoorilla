@@ -67,7 +67,8 @@ TreeController = ($scope, $http) ->
         else
             return "(-)"
 
-    $scope.showChildren "/"
+    if $scope.tree.length == 0
+        $scope.showChildren "/"
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams
