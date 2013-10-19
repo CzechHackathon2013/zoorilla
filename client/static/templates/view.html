@@ -10,9 +10,11 @@
         <div class="alert alert-success" ng-show="flashSuccess">{{flashSuccess}}</div>
         <div class="alert alert-info" ng-show="flashInfo">{{flashInfo}}</div>
         <div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>
-        <p>
-            <pre>{{node.data}}</pre>
+        <pre ng-show="node.dataEdit == null">{{node.data}}</pre>
+        <p ng-show="node.dataEdit != null">
+            <textarea>{{node.dataEdit}}</textarea>
         </p>
+        <button ng-click="edit()">Edit</button>
         <button ng-click="save()">Save</button>
     </div>
 </div>

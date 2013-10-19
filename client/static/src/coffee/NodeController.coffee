@@ -1,6 +1,7 @@
 NodeController = ($scope, $routeParams, $http, $timeout) ->
     $scope.node = {}
     $scope.node.name = $routeParams.path.replace(/---/g, "/")
+
     $scope.$watch 'node.name', ->
         if $scope.node && $scope.node.name
             $http.get(window.settings.connection + "/0/node" + $scope.node.name + "/")
@@ -8,6 +9,10 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
                     $scope.node.data = data
                 .error () ->
                     $scope.node.data = "failed to load data for node '" + $scope.node.name + "'"
+
+    $scope.edit = ->
+        $scope.node.dataEdit = $scope.node.data
+
     $scope.save = ->
         $http.post(window.settings.connection + "/0/node" + $scope.node.name + "/", $scope.node.data)
             .success () ->
@@ -16,7 +21,7 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
                     $scope.flashSuccess = null
                 , 5000
             .error (data, status) ->
-                status
-                    .when(409, $scope.flashInfo = 'Bad version')
-                    .when(404, $scope.flashError = "Node '" + $scope.node.name + "' does not exist.")
+                switch status
+                    when 409 then $scope.flashInfo = 'Bad version'
+                    when 404 then $scope.flashError = "Node '" + $scope.node.name + "' does not exist."
                     
