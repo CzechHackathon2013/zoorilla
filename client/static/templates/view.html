@@ -14,7 +14,7 @@
         <p ng-show="node.dataEdit != null">
             <textarea>{{node.dataEdit}}</textarea>
         </p>
-        <button ng-click="edit()">Edit</button>
-        <button ng-click="save()">Save</button>
+        <button ng-click="edit()" ng-show="node.dataEdit == null">Edit</button>
+        <button ng-click="save()" ng-show="node.dataEdit != null">Save</button>
     </div>
 </div>
