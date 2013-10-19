@@ -25,6 +25,8 @@ String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 TreeController = ($scope, $http, $rootScope) ->
+    $scope.settings = window.settings
+
     if window.tree?
         $scope.tree = window.tree
     else $scope.tree = []

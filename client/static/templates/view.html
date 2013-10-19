@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-4" ng-controller="TreeController">
-        <h3>Tree</h3>
+        <h4>{{settings.connection}}</h4>
         <table>
             <tr>
                 <td style="width:250px;">
@@ -15,7 +15,7 @@
         </table>
     </div>
     <div class="col-md-8" ng-controller="NodeController">
-        <h3>Node</h3>
+        <h4>{{node.name}}</h4>
         <div class="alert alert-success" ng-show="flashSuccess">{{flashSuccess}}</div>
         <div class="alert alert-info" ng-show="flashInfo">{{flashInfo}}</div>
         <div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>
