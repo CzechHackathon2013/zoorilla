@@ -46,16 +46,17 @@ public class NodeServlet extends HttpServlet {
     }
     
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-    		throws ServletException, IOException {
-    	String path = req.getPathInfo();
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	CreateMode mode = this.getCreateMode(req);
     	if(mode == null) {
     		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
     		return;
     	}
     	try {
-			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(path);
+			String nodePath = Path.fromRequest(req);
+			this.client.create().creatingParentsIfNeeded().withMode(mode).forPath(nodePath);
+		} catch(IllegalArgumentException ex) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
     	} catch (KeeperException.NodeExistsException e) {
     		resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 		} catch (Exception e) {
