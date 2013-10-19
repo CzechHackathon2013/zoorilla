@@ -1,10 +1,31 @@
 <div class="row">
     <div class="col-md-4" ng-controller="TreeController">
         <h3>Tree</h3>
-        <ul>
-            <li><span ng-click="addNode('')">add</span></li>
-            <li ng-repeat="node in tree"><a ng-href="#{{node.replaceslashes('---')}}">{{node}}</a> <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]"></span> <span ng-click="removeNode(node)">rm</span> <span ng-click="addNode(node)">add</span></li>
-        </ul>
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <span ng-click="addNode('')" class="btn btn-xs btn-success">add</span>
+                </td>
+            </tr>
+            <tr ng-repeat="node in tree">
+                <td style="width:250px;">
+                    <a ng-href="#{{node.replaceslashes('---')}}">{{node}}</a>
+                </td>
+                <td>
+                    <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]" ng-show="tree_children_button[node]" class="btn btn-xs btn-warning"></span>
+                </td>
+                <td>
+                    <span ng-click="addNode(node)" class="btn btn-xs btn-success">add</span></li>
+                </td>
+                <td>
+                    <span ng-click="removeNode(node)" class="btn btn-xs btn-danger">rm</span>
+                </td>
+            <tr>
+        </table>
     </div>
     <div class="col-md-8" ng-controller="NodeController">
         <h3>Node</h3>

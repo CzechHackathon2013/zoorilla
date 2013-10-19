@@ -74,9 +74,9 @@ TreeController = ($scope, $http) ->
                 # console.log data
                 if data.length != 0
                     if $scope.tree_open.indexOf(path) == -1
-                        $scope.tree_children_button[path] = "(+)"
+                        $scope.tree_children_button[path] = "show"
                     else
-                        $scope.tree_children_button[path] = "(-)"
+                        $scope.tree_children_button[path] = "collapse"
                 else
                     $scope.tree_children_button[path] = ""
             .error ->
