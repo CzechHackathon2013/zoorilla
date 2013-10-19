@@ -4,13 +4,8 @@ settings =
 
 main.config ($routeProvider) -> 
     $routeProvider
-    .when("/", {
-       templateUrl: "static/templates/tree.html",
-       controller: TreeController,
-    })
-    .when("/node", {
-       templateUrl: "static/templates/node.html",
-       controller: NodeController,
+    .when("/:path", {
+       templateUrl: "static/templates/view.html",
     })
     .when("/settings", {
        templateUrl: "static/templates/settings.html",
@@ -26,6 +21,8 @@ Array.prototype.remove = (r) ->
             out.push e
     return out
 
+String.prototype.replaceslashes = (c) ->
+    this.replace /\//g, c
 
 TreeController = ($scope, $http) ->
     $scope.tree = []
