@@ -15,13 +15,17 @@ public class Path {
 			throw new IllegalArgumentException("Bad request, no path");
 		}
 		String nodePath = req.getPathInfo().trim();
+		return(normalizePath(nodePath));
+	}
+
+	public static String normalizePath(String nodePath) {
 		if (isRoot(nodePath)) {
 			return ROOT;
 		}
-		
+
 		return nodePath.charAt(nodePath.length()-1) != '/'
-			? nodePath
-			: nodePath.substring(0, nodePath.length()-1);
+				? nodePath
+						: nodePath.substring(0, nodePath.length()-1);
 	}
 
 	static boolean isRoot(String nodePath) {

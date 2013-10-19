@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import cz.hack.zoorilla.Path;
 import cz.hack.zoorilla.Util;
 
 /**
@@ -128,6 +129,7 @@ public class NotificationBroker {
 		logger.info("Remove watcher for sesion {} at {}:{}", new Object[] {
 			session, type, path
 		});
+		path = Path.normalizePath(path);
 		TypePath tp = new TypePath(type, path);
 		synchronized (this) {
 			Set<Session> sessions = this.zednik.get(tp);
@@ -152,13 +154,17 @@ public class NotificationBroker {
 		logger.info("Register watcher {} for {}:{}", new Object[] {
 			session, type, path
 		});
+		path = Path.normalizePath(path);
 		TypePath tp = new TypePath(type, path);
+		/*
+		 * TODO watch for data change using NodeCache
+		 */
 		CacheReference cache;
 		synchronized (this) {
 			cache = this.caches.get(path);
 			if(cache == null) {
 				logger.info("Create new Path cache");
-				cache = new CacheReference(new PathChildrenCache(client, path, true, false, this.executor));
+				cache = new CacheReference(new PathChildrenCache(client, path, false, false, this.executor));
 				try {
 					cache.getCache().start(StartMode.BUILD_INITIAL_CACHE);
 				} catch (Exception e) {
