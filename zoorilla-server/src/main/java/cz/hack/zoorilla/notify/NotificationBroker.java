@@ -1,23 +1,25 @@
 package cz.hack.zoorilla.notify;
 
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
-import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.websocket.api.Session;
-import org.json.JSONException;
 import org.json.JSONStringer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
+
+import cz.hack.zoorilla.Util;
 
 /**
  *
@@ -49,14 +51,40 @@ public class NotificationBroker {
 		}
 	}
 	
-	public void notify(TypePath tp) {
+	private String subNodeName(String basePath, String subNodePath) {
+		return(subNodePath.substring(subNodePath.charAt(basePath.length()) == '/' ? basePath.length() + 1 : basePath.length()));
+	}
+	
+	void notify(PathChildrenCacheEvent evt, String path) {
+		NotificationType type;
+		switch(evt.getType()) {
+		case CHILD_ADDED:
+		case CHILD_REMOVED:
+			type = NotificationType.CHILDREN;
+			break;
+		case CHILD_UPDATED:
+			type = NotificationType.DATA;
+			break;
+		default:
+			return;
+		}
+		TypePath tp = new TypePath(type, path);
 		JSONStringer json = new JSONStringer();
 		try {
 			json.object();
-			json.key("path").value(tp.getPath());
-			json.key("type").value(tp.getType().name().toLowerCase());
+			json.key("path").value(path);
+			json.key("type").value(type.name().toLowerCase());
+			switch(evt.getType()) {
+			case CHILD_ADDED:
+				json.key("add");
+				Util.generateJSONNodeInfo(this.subNodeName(path, evt.getData().getPath()), evt.getData().getStat(), json);
+				break;
+			case CHILD_REMOVED:
+				json.key("delete").value(this.subNodeName(path, evt.getData().getPath()));
+				break;
+			}
 			json.endObject();
-		} catch(JSONException e) {
+		} catch(Exception e) {
 			
 		}
 		String msg = json.toString();
@@ -167,19 +195,7 @@ public class NotificationBroker {
 		public void childEvent(CuratorFramework curator,
 				PathChildrenCacheEvent event) throws Exception {
 			logger.info("{} for {}", event.getType(), this.path);
-			NotificationType type;
-			switch(event.getType()) {
-			case CHILD_ADDED:
-			case CHILD_REMOVED:
-				type = NotificationType.CHILDREN;
-				break;
-			case CHILD_UPDATED:
-				type = NotificationType.DATA;
-				break;
-			default:
-				return;
-			}
-			NotificationBroker.this.notify(new TypePath(type, this.path));
+			NotificationBroker.this.notify(event, this.path);
 		}
 		
 	}
