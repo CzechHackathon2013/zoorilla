@@ -17,3 +17,7 @@ p {
 input[type=file] {
     width: 140px;
 }
+
+.pre-scrollable {
+    height: 340px;
+}
