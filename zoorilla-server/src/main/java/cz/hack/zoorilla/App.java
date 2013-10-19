@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public class App {
 
@@ -23,8 +24,8 @@ public class App {
         Server server = new Server(8080);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setSessionHandler(new SessionHandler(new HashSessionManager()));
-        context.addServlet(NodeServlet.class, "/0/node/*");
-        context.addServlet(ChildrenServlet.class, "/0/children/*");
+        context.addServlet(new ServletHolder(new NodeServlet(client)), "/0/node/*");
+        context.addServlet(new ServletHolder(new ChildrenServlet(client)), "/0/children/*");
         context.setContextPath("/");
         server.setHandler(context);
         server.start();

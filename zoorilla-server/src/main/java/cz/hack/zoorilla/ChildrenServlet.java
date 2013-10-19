@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.curator.framework.CuratorFramework;
@@ -14,11 +15,16 @@ import org.json.JSONStringer;
  *
  * @author Phantom
  */
-public class ChildrenServlet extends AbstractZoorillaServlet {
+public class ChildrenServlet extends HttpServlet{
+	
+	private final CuratorFramework client;
+
+	public ChildrenServlet(CuratorFramework curatorFramework) {
+		this.client = curatorFramework;
+	}
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        CuratorFramework client = getClient(req);
         try {
             List<String> children = client.getChildren().forPath(req.getPathInfo());
             resp.setStatus(HttpServletResponse.SC_OK);
