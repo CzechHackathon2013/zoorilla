@@ -49,15 +49,15 @@ TreeController = ($scope, $http, $rootScope) ->
         $http.get(window.settings.connection+"/0/children"+path)
             .success (data) ->
                 for element in data
-                    $scope.tree.push path+element
-                    $scope.showHideChildrenLabel(path+element)
+                    $scope.tree.push path+element.name
+                    $scope.showHideChildrenLabel path+element.name
                 $scope.tree.sort()
 
     $scope.hideChildren = (path) ->
         res = []
         data = $scope.tree
         for node in data
-            if node.indexOf(path+"/") == -1
+            if node.indexOf(path+"/") == -1 and data.indexOf(path+"/") == -1
                 res.push node
         $scope.tree = res
 
@@ -73,7 +73,6 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.showHideChildrenLabel = (path) ->
         $http.get(window.settings.connection+"/0/children"+path+"/")
             .success (data) ->
-                # console.log data
                 if data.length != 0
                     if $scope.tree_open.indexOf(path) == -1
                         $scope.tree_children_button[path] = "plus"
@@ -113,7 +112,7 @@ TreeController = ($scope, $http, $rootScope) ->
 
     if $scope.tree.length == 0
         $scope.showChildren "/"
-        $scope.showHideChildrenLabel("")
+        $scope.showHideChildrenLabel ""
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams
