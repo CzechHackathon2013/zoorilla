@@ -91,6 +91,20 @@ TreeController = ($scope, $http) ->
                             $scope.tree = $scope.tree.remove element
                             $scope.tree_open = $scope.tree_open.remove element
 
+    $scope.addNode = (node) ->
+        suffix = prompt "Name of new node"
+        node = node + "/" + suffix
+        $http({
+            url: window.settings.connection+"/0/node"+node+"/",
+            method: "PUT",
+            data: JSON.stringify({"type": "persistant"}), # {type: "ephemeral"}
+            headers: {'Content-Type': 'application/json'},
+        })
+            .success ->
+                $scope.tree.push node
+                $scope.tree.sort()
+  
+
     if $scope.tree.length == 0
         $scope.showChildren "/"
         $scope.showHideChildrenLabel("")

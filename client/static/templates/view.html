@@ -2,7 +2,8 @@
     <div class="col-md-4" ng-controller="TreeController">
         <h3>Tree</h3>
         <ul>
-            <li ng-repeat="node in tree"><a ng-href="#{{node.replaceslashes('---')}}">{{node}}</a> <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]"></span> <span ng-click="removeNode(node)">rm</span></li>
+            <li><span ng-click="addNode('')">add</span></li>
+            <li ng-repeat="node in tree"><a ng-href="#{{node.replaceslashes('---')}}">{{node}}</a> <span ng-click="showHideChildren(node)" ng-bind="tree_children_button[node]"></span> <span ng-click="removeNode(node)">rm</span> <span ng-click="addNode(node)">add</span></li>
         </ul>
     </div>
     <div class="col-md-8" ng-controller="NodeController">
