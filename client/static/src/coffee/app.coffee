@@ -1,8 +1,11 @@
 main = angular.module 'main', []
-settings = 
-    connection: window.localStorage.getItem 'zoorilla_connection'
 
-main.config ($routeProvider) -> 
+conn = window.localStorage.getItem 'zoorilla_connection'
+settings =
+    connection: conn
+    wsConnection: conn.replace(/^http/, 'ws')
+
+main.config ($routeProvider) ->
     $routeProvider
     .when("/settings", {
        templateUrl: "static/templates/settings.html",
@@ -23,6 +26,23 @@ Array.prototype.remove = (r) ->
 
 String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
+
+
+#ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
+#ws.onerror = (event) ->
+#    console.log(event)
+#ws.onmessage = (event) ->
+#    console.log(event)
+#ws.onopen = (event) ->
+#    tmp =
+#        watch: 'true'
+#        path: '/'
+#        type: 'CHILDREN'
+#    ws.send(JSON.stringify(tmp))
+#ws.onclose = (event) ->
+#    console.log(event)
+
+
 
 TreeController = ($scope, $http, $rootScope) ->
     $scope.settings = window.settings
