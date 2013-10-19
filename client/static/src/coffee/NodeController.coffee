@@ -22,13 +22,9 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
         editor.setTheme("ace/theme/twilight")
 
         # Fallback data type is plain text
-        dataType = "text"
-        try
-            tmp = JSON.parse $scope.node.dataEdit
-            # If we got here, we have valid JSON
-            dataType = "json"
-        catch error
-            # We don't care
+        dataType = "json"
+        if $scope.node.data.constructor == String
+            dataType = "text"
 
         editor.getSession().setMode("ace/mode/" + dataType)
 
