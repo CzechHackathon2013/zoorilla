@@ -8,7 +8,7 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
                 .success (data) ->
                     $scope.node.data = data
                 .error () ->
-                    $scope.node.data = "failed to load data for node '" + $scope.node.name + "'"
+                    $scope.flashError = "failed to load data for node '" + $scope.node.name + "'"
 
     $scope.edit = ->
         $scope.node.dataEdit = $scope.node.data
