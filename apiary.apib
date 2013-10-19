@@ -10,7 +10,7 @@ GET /0/zoorilla/
 GET /0/children/
 < 200
 < Content-Type: application/json
-["a", "b", "node-save-test"]
+[{"name":"a","type":"persistent","leaf":false},{"name":"b","type":"persistent","leaf":false},{"name":"node-save-test","type":"ephemeral","leaf":true}]
 
 
 GET /0/children/a/
@@ -122,6 +122,7 @@ GET /0/node/a/
 < 200
 < Content-Type: aplication/text; charset=utf-8
 < X-Zoo-Version:  1
+< X-Zoo-Node-Type: persistent
 long raw data 1
 long raw data 2
 long raw data 3
@@ -135,6 +136,7 @@ GET /0/node/node-save-test/
 < 200
 < Content-Type: aplication/text; charset=utf-8
 < X-Zoo-Version:  1
+< X-Zoo-Node-Type: ephemeral
 raw data
 
 
