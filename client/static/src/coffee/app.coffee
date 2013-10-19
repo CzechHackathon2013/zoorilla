@@ -28,22 +28,6 @@ String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 
-ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
-ws.onerror = (event) ->
-    console.log(event)
-ws.onmessage = (event) ->
-    console.log(event)
-ws.onopen = (event) ->
-    tmp =
-        watch: 'true'
-        path: '/'
-        type: 'CHILDREN'
-    ws.send(JSON.stringify(tmp))
-ws.onclose = (event) ->
-    console.log(event)
-
-
-
 TreeController = ($scope, $http, $rootScope) ->
     $scope.settings = window.settings
 
@@ -68,9 +52,10 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.showChildren = (path) ->
         $http.get(window.settings.connection+"/0/children"+path)
             .success (data) ->
+                console.log('showChildren: ' + JSON.stringify(data))
                 for element in data
-                    $scope.tree.push path+element.name
-                    $scope.showHideChildrenLabel(path+element.name)
+                    $scope.tree.push path + element.name
+                    $scope.showHideChildrenLabel(path + element.name)
                 $scope.tree.sort()
 
     $scope.hideChildren = (path) ->
@@ -85,15 +70,25 @@ TreeController = ($scope, $http, $rootScope) ->
         if $scope.tree_open.indexOf(path) == -1
             $scope.showChildren(path+"/")
             $scope.tree_open.push path
+            tmp =
+                watch: 'true'
+                path: path
+                type: 'CHILDREN'
+            ws.send(JSON.stringify(tmp))
         else
             $scope.hideChildren(path)
             $scope.tree_open = $scope.tree_open.remove(path)
+            tmp =
+                watch: 'false'
+                path: path
+                type: 'CHILDREN'
+            ws.send(JSON.stringify(tmp))
         $scope.showHideChildrenLabel(path)
 
     $scope.showHideChildrenLabel = (path) ->
         $http.get(window.settings.connection+"/0/children"+path+"/")
             .success (data) ->
-                # console.log data
+                console.log('showHideChildrenLabel: ' + JSON.stringify(data))
                 if data.length != 0
                     if $scope.tree_open.indexOf(path) == -1
                         $scope.tree_children_button[path] = "plus"
@@ -134,6 +129,46 @@ TreeController = ($scope, $http, $rootScope) ->
     if $scope.tree.length == 0
         $scope.showChildren "/"
         $scope.showHideChildrenLabel("")
+
+
+    # Server notifications handling
+    ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
+
+    ws.onerror = (event) ->
+        console.log(event)
+
+    ws.onmessage = (event) ->
+        console.log(event)
+        data = JSON.parse(event.data)
+        $scope.$apply( (scope) ->
+            path = data.path
+            if path.charAt(path.length - 1) != '/'
+                path = path + '/'
+            if data.add
+                element = data.add
+                scope.tree.push path + element.name
+                if !element.leaf
+                    scope.tree_children_button[path + element.name] = 'plus'
+            if data.delete
+                name = data.delete
+                for i in [0..(scope.tree.length - 1)]
+                    if scope.tree[i] == (path + name)
+                        scope.tree.splice(i, 1)
+                        break
+                scope.tree_children_button[path + name] = undefined
+            scope.tree.sort()
+        )
+
+    ws.onopen = (event) ->
+        tmp =
+            watch: 'true'
+            path: '/'
+            type: 'CHILDREN'
+        ws.send(JSON.stringify(tmp))
+
+    ws.onclose = (event) ->
+        console.log(event)
+
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams
