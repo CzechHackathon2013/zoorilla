@@ -1,6 +1,9 @@
 main = angular.module 'main', []
-settings = 
-    connection: window.localStorage.getItem 'zoorilla_connection'
+
+conn = window.localStorage.getItem 'zoorilla_connection'
+settings =
+    connection: conn
+    wsConnection: conn.replace(/^http/, 'ws')
 
 main.config ($routeProvider) -> 
     $routeProvider
