@@ -69,7 +69,7 @@ TreeController = ($scope, $http, $rootScope) ->
         $scope.tree = res
 
     $scope.showHideChildren = (path) ->
-        if $scope.tree_open.indexOf(path) != 0
+        if $scope.tree_open.indexOf(path) == -1
             $scope.showChildren(path+"/")
             $scope.tree_open.push path
             tmp =
@@ -92,7 +92,7 @@ TreeController = ($scope, $http, $rootScope) ->
             .success (data) ->
                 console.log('showHideChildrenLabel: ' + JSON.stringify(data))
                 if data.length != 0
-                    if $scope.tree_open.indexOf(path) != 0
+                    if $scope.tree_open.indexOf(path) == -1
                         $scope.tree_children_button[path] = "plus"
                     else
                         $scope.tree_children_button[path] = "minus"
@@ -114,16 +114,21 @@ TreeController = ($scope, $http, $rootScope) ->
         suffix = prompt "Name of new node"
         if not suffix
             return
-        node = node + "/" + suffix
+        child_node = node + "/" + suffix
         $http({
-            url: window.settings.connection+"/0/node"+node+"/",
+            url: window.settings.connection+"/0/node"+child_node+"/",
             method: "PUT",
             data: JSON.stringify({"type": "persistent"}), # {type: "ephemeral"}
             headers: {'Content-Type': 'application/json'},
         })
             .success ->
-                $scope.tree.push node
+                $scope.tree.push child_node
                 $scope.tree.sort()
+                tmp =
+                    watch: 'true'
+                    path: node
+                    type: 'CHILDREN'
+                ws.send(JSON.stringify(tmp))
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
