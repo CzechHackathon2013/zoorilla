@@ -8,6 +8,9 @@ main.config ($routeProvider) ->
        templateUrl: "static/templates/settings.html",
        controller: SettingsController,
     })
+    .when("/no-connection", {
+       templateUrl: "static/templates/no-connection.html",
+    })
     .when("/:path", {
        templateUrl: "static/templates/view.html",
     })
@@ -17,7 +20,13 @@ main.config ($routeProvider) ->
 String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
+isConnected = ->
+    if not window.settings.connection
+        window.location.hash = "#/no-connection"
+
 TreeController = ($scope, $http, $rootScope) ->
+    isConnected()
+
     $scope.settings = window.settings
     $scope.nodes = NodeStorage.nodes
 
@@ -70,4 +79,5 @@ SettingsController = ($scope, $routeParams, $http) ->
                 alert "Saved"
             .error () ->
                 alert "No running Zoorilla server on '"+$scope.settings.connection+"'"
+                window.settings.connection = null
 
