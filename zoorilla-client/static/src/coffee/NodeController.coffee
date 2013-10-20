@@ -1,6 +1,8 @@
 NodeController = ($scope, $routeParams, $http, $timeout) ->
-    $scope.node = {}
-    $scope.node.name = $routeParams.path.replace(/---/g, "/")
+    $scope.node = NodeStorage.get($routeParams.path.replace(/---/g, "/"))
+
+    if not $scope.node
+        $scope.flashInfo = "Select node from list"
 
     # Hold the reference to Ace editor
     editor = ace.edit("editor")

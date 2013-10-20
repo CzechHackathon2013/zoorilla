@@ -31,3 +31,16 @@ input[type=file] {
     height: 340px;
 }
 
+@media (max-width: 768px) {
+    .glyphicon,
+    .tree-item {
+        font-size: 25px;
+        margin-right: 20px;
+    }
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
