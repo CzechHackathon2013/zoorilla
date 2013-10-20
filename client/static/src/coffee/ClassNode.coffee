@@ -3,6 +3,9 @@ Array.prototype.pop = (i) ->
         return this.splice(i, 1)[0]
     return this.splice(this.length-1, 1)[0]
 
+Array.prototype.last = ->
+    return this[this.length-1]
+
 class NodeStorage
     constructor: () ->
         @nodes = []

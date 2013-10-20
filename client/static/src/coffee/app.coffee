@@ -20,6 +20,11 @@ main.config ($routeProvider) ->
 String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
+Node.prototype.level = () ->
+    if this.name == "/"
+        return 0
+    return this.path.length
+
 isConnected = ->
     if not window.settings.connection
         window.location.hash = "#/no-connection"
