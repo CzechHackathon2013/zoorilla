@@ -11,10 +11,10 @@ main.config ($routeProvider) ->
     .when("/no-connection", {
        templateUrl: "static/templates/no-connection.html",
     })
-    .when("/:path", {
+    .when("/browse/:path", {
        templateUrl: "static/templates/view.html",
     })
-    .otherwise {redirectTo: "/"}
+    .otherwise {redirectTo: "/browse/"}
 
 
 String.prototype.replaceslashes = (c) ->
