@@ -28,6 +28,17 @@ Node.prototype.level = () ->
         return 0
     return this.path.length
 
+Node.prototype.iconSuffix = () ->
+    if this.hasChildren()
+        if this.children.length
+            return "minus"
+        return "plus"
+    return ""
+
+Node.prototype.deleteChildren = () ->
+    for node in this.children
+        node.delete()
+
 isConnected = ->
     if not window.settings.connection
         window.location.hash = "#/no-connection"

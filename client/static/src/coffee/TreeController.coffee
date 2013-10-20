@@ -7,7 +7,7 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.loadChildren = (name) ->
         if name == "/"
             name = "" 
-            rootNode = new Node("/", "p")
+
         $http.get(window.settings.connection+"/0/children"+name+"/")
             .success (data) ->
                 for element in data
@@ -38,6 +38,13 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
 
+    $scope.showHideChildren = (node) ->
+        if node.hasChildrens
+            node.deleteChildren()
+        else
+            $scope.loadChildren(node.name)
+        $scope.nodes = NodeStorage.nodes
+
     $scope.loadChildren "/"
     # rootNode = new Node("/", "persistent")
     $scope.nodes = NodeStorage.nodes
@@ -50,7 +57,7 @@ TreeController = ($scope, $http, $rootScope) ->
     ws.onmessage = (event) ->
         console.log(event)
         data = JSON.parse(event.data)
-        $scope.$apply( (scope) ->
+        $scope.$apply (scope) ->
             path = data.path
             if path.charAt(path.length - 1) != '/'
                 path = path + '/'
@@ -62,9 +69,9 @@ TreeController = ($scope, $http, $rootScope) ->
             if data.delete
                 node = new Node(path+data.delete)
                 node.delete()
-                $scope.nodes = NodeStorage.nodes
 
-        )
+            $scope.nodes = NodeStorage.nodes
+
 
     ws.onopen = (event) ->
         tmp =
