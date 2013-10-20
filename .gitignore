@@ -1,8 +1,6 @@
-client/static/src/coffee/*.js
-client/tmp
 *.swp
+zoorilla-client/static/src/coffee/*.js
 zoorilla-server/target/*
-
 zoorilla-server/.classpath
 zoorilla-server/.project
 zoorilla-server/.settings
