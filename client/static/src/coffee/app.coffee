@@ -14,105 +14,50 @@ main.config ($routeProvider) ->
     .otherwise {redirectTo: "/"}
 
 
-Array.prototype.remove = (r) ->
-    out = []
-    for e in this
-        if e != r
-            out.push e
-    return out
-
 String.prototype.replaceslashes = (c) ->
     this.replace /\//g, c
 
 TreeController = ($scope, $http, $rootScope) ->
     $scope.settings = window.settings
+    $scope.nodes = NodeStorage.nodes
 
-    if window.tree?
-        $scope.tree = window.tree
-    else $scope.tree = []
-    if window.tree_open?
-        $scope.tree_open = window.tree_open
-    else $scope.tree_open = []
-    if window.tree_children_button?
-        $scope.tree_children_button = window.tree_children_button
-    else $scope.tree_children_button = {}
-
-    $scope.$watch "tree", ->
-        window.tree = $scope.tree
-        for element in $scope.tree
-            $scope.showHideChildrenLabel(element)
-
-    $scope.$watch "tree_open", ->
-        window.tree_open = $scope.tree_open
-
-    $scope.showChildren = (path) ->
-        $http.get(window.settings.connection+"/0/children"+path)
+    $scope.loadChildren = (node) ->
+        $http.get(window.settings.connection+"/0/children"+node.name+"/")
             .success (data) ->
                 for element in data
-                    $scope.tree.push path+element.name
-                    $scope.showHideChildrenLabel path+element.name
-                $scope.tree.sort()
-
-    $scope.hideChildren = (path) ->
-        res = []
-        data = $scope.tree
-        for node in data
-            if node.indexOf(path+"/") == -1 and data.indexOf(path+"/") == -1
-                res.push node
-        $scope.tree = res
-
-    $scope.showHideChildren = (path) ->
-        if $scope.tree_open.indexOf(path) == -1
-            $scope.showChildren(path+"/")
-            $scope.tree_open.push path
-        else
-            $scope.hideChildren(path)
-            $scope.tree_open = $scope.tree_open.remove(path)
-        $scope.showHideChildrenLabel(path)
-
-    $scope.showHideChildrenLabel = (path) ->
-        $http.get(window.settings.connection+"/0/children"+path+"/")
-            .success (data) ->
-                if data.length != 0
-                    if $scope.tree_open.indexOf(path) == -1
-                        $scope.tree_children_button[path] = "plus"
-                    else
-                        $scope.tree_children_button[path] = "minus"
-                else
-                    $scope.tree_children_button[path] = ""
-            .error ->
-                $scope.tree_children_button[path] = ""
+                    new Node(element.name, element.type)
+                $scope.nodes = NodeStorage.nodes
 
     $scope.removeNode = (node) ->
-        if confirm "Really remove node '"+node+"'"
-            $http.delete(window.settings.connection+"/0/node"+node+"/")
-                .success ->
-                    for element in $scope.tree
-                        if element.indexOf(node) == 0
-                            $scope.tree = $scope.tree.remove element
-                            $scope.tree_open = $scope.tree_open.remove element
+        node.delete()
+        $scope.nodes = NodeStorage.nodes
 
     $scope.addNode = (node) ->
         suffix = prompt "Name of new node"
         if not suffix
             return
-        node = node + "/" + suffix
-        $http({
-            url: window.settings.connection+"/0/node"+node+"/",
-            method: "PUT",
-            data: JSON.stringify({"type": "persistent"}), # {type: "ephemeral"}
-            headers: {'Content-Type': 'application/json'},
-        })
-            .success ->
-                $scope.tree.push node
-                $scope.tree.sort()
+        while true
+            type = prompt "Node type [e/p]"
+            if type in ["e", "p"]
+                break
+        typeFull = "ephemeral" if type == "e"
+        typeFull = "persistent" if type == "p"
+        # $http({
+        #     url: window.settings.connection+"/0/node"+name+"/",
+        #     method: "PUT",
+        #     data: JSON.stringify({"type": "persistent"}),
+        #     headers: {'Content-Type': 'application/json'},
+        # })
+        #     .success ->
+        node.createChild(suffix, typeFull)
+        $scope.nodes = NodeStorage.nodes
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
 
-    if $scope.tree.length == 0
-        $scope.showChildren "/"
-        $scope.showHideChildrenLabel ""
+    $scope.loadChildren "/"
+    rootNode = new Node("/", "persistent")
+    $scope.nodes = NodeStorage.nodes
 
 SettingsController = ($scope, $routeParams, $http) ->
     $scope.routeParams = $routeParams
