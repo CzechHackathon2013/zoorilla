@@ -50,6 +50,7 @@ public class NodeServlet extends HttpServlet {
             byte[] nodeData = client.getData().forPath(nodePath);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.setContentLength(nodeData.length);
+            resp.setContentType("application/octet-stream");
             resp.setHeader("X-Zoo-Version", String.valueOf(stat.getVersion()));
             resp.setHeader("X-Zoo-Node-Type", Util.getNodeMode(stat));
             resp.getOutputStream().write(nodeData);

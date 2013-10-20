@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import cz.hack.zoorilla.Path;
 import cz.hack.zoorilla.Util;
 
 /**
@@ -31,9 +32,9 @@ public class NotificationBroker {
 	
 	private final CuratorFramework client;
 	private final ExecutorService executor = Executors.newCachedThreadPool();
-	private Map<String, CacheReference> caches = Maps.newHashMap();
-	private Map<TypePath, Set<Session>> zednik = Maps.newHashMap();
-	private Map<Session, Set<TypePath>> dlazdic = Maps.newHashMap();
+	private Map<String, CacheReference<PathChildrenCache>> childrenCaches = Maps.newHashMap();
+	private Map<TypePath, Set<Session>> watchedBy = Maps.newHashMap();
+	private Map<Session, Set<TypePath>> sessionWatches = Maps.newHashMap();
 
 	public NotificationBroker(CuratorFramework client) {
 		this.client = client;
@@ -41,10 +42,10 @@ public class NotificationBroker {
 	
 	public void remove(Session session) {
 		synchronized(this) {
-			Set<TypePath> paths = this.dlazdic.remove(session);
+			Set<TypePath> paths = this.sessionWatches.remove(session);
 			if(paths != null) {
 				for(TypePath tp: paths) {
-					this.zednik.get(tp).remove(session);
+					this.watchedBy.get(tp).remove(session);
 					this.unuseCache(tp.getPath());
 				}
 			}
@@ -89,7 +90,7 @@ public class NotificationBroker {
 		}
 		String msg = json.toString();
 		synchronized(this) {
-			Set<Session> sessions = this.zednik.get(tp);
+			Set<Session> sessions = this.watchedBy.get(tp);
 			if(sessions != null) {
 				for (Session s : sessions) {
 					logger.info("Notify {}", s);
@@ -109,7 +110,7 @@ public class NotificationBroker {
 	}
 	
 	private void unuseCache(String path) {
-		CacheReference ref = this.caches.get(path);
+		CacheReference<PathChildrenCache> ref = this.childrenCaches.get(path);
 		if(ref != null) {
 			ref.decUsed();
 			if(ref.isUsed() == false) {
@@ -118,7 +119,7 @@ public class NotificationBroker {
 				} catch(IOException e) {
 					logger.warn("Error closing cahe", e);
 				}
-				this.caches.remove(path);
+				this.childrenCaches.remove(path);
 				logger.info("Unregister listener for path {}", path);
 			}
 		}
@@ -128,18 +129,19 @@ public class NotificationBroker {
 		logger.info("Remove watcher for sesion {} at {}:{}", new Object[] {
 			session, type, path
 		});
+		path = Path.normalizePath(path);
 		TypePath tp = new TypePath(type, path);
 		synchronized (this) {
-			Set<Session> sessions = this.zednik.get(tp);
-			Set<TypePath> paths = this.dlazdic.get(session);
+			Set<Session> sessions = this.watchedBy.get(tp);
+			Set<TypePath> paths = this.sessionWatches.get(session);
 			if(sessions != null && sessions.remove(session)) {
 				if(sessions.isEmpty()) {
-					this.zednik.remove(tp);
+					this.watchedBy.remove(tp);
 					logger.info("Nothing more listens for {}", tp);
 				}
 				paths.remove(tp);
 				if(paths.isEmpty()) {
-					this.dlazdic.remove(session);
+					this.sessionWatches.remove(session);
 					logger.info("{} listens for nothing else", session);
 				}
 				this.unuseCache(path);
@@ -152,31 +154,35 @@ public class NotificationBroker {
 		logger.info("Register watcher {} for {}:{}", new Object[] {
 			session, type, path
 		});
+		path = Path.normalizePath(path);
 		TypePath tp = new TypePath(type, path);
-		CacheReference cache;
+		/*
+		 * TODO watch for data change using NodeCache
+		 */
+		CacheReference<PathChildrenCache> cache;
 		synchronized (this) {
-			cache = this.caches.get(path);
+			cache = this.childrenCaches.get(path);
 			if(cache == null) {
 				logger.info("Create new Path cache");
-				cache = new CacheReference(new PathChildrenCache(client, path, true, false, this.executor));
+				cache = new CacheReference<PathChildrenCache>(new PathChildrenCache(client, path, false, false, this.executor));
 				try {
 					cache.getCache().start(StartMode.BUILD_INITIAL_CACHE);
 				} catch (Exception e) {
 					logger.warn("Error starting cache", e);
 				}
 				cache.getCache().getListenable().addListener(new NodeListener(path));
-				this.caches.put(path, cache);
+				this.childrenCaches.put(path, cache);
 			}
-			Set<Session> sessions = this.zednik.get(tp);
+			Set<Session> sessions = this.watchedBy.get(tp);
 			if(sessions == null) {
 				sessions = new HashSet<Session>();
-				this.zednik.put(tp, sessions);
+				this.watchedBy.put(tp, sessions);
 			}
 			sessions.add(session);
-			Set<TypePath> paths = this.dlazdic.get(session);
+			Set<TypePath> paths = this.sessionWatches.get(session);
 			if(paths == null) {
 				paths = new HashSet<TypePath>();
-				this.dlazdic.put(session, paths);
+				this.sessionWatches.put(session, paths);
 			}
 			if(paths.add(tp)) {
 				cache.incUsed();
