@@ -3,7 +3,7 @@
         <h4>{{settings.connection}}</h4>
         <ul>
             <li ng-repeat="node in nodes">
-                <a ng-href="#{{node.name.replaceslashes('---')}}" ng-click="nodeClick()">{{node.name}} ({{node.type.substr(0,1)}})</a>
+                <a class="tree-item" ng-href="#{{node.name.replaceslashes('---')}}" ng-click="nodeClick()">{{node.name}} ({{node.type.substr(0,1)}})</a>
                 &nbsp;&nbsp;
                 <span ng-click="showHideChildren(node)" ng-show="node.hasChildren()" class="glyphicon glyphicon-plus"></span>
                 <span ng-click="addNode(node)" class="glyphicon glyphicon-file"></span>
