@@ -21,11 +21,10 @@
         <div class="alert alert-danger" ng-show="flashError">{{flashError}}</div>
         <form>
             <div class="form-group">
-                <pre ng-show="node.dataEdit == null" class="pre-scrollable">{{node.data}}</pre>
-                <pre id="editor" ng-show="node.dataEdit != null" ng-model="node.data">{{node.data}}</pre>
+                <pre id="editor" ng-model="node.data">{{node.data}}</pre>
             </div>
-            <button ng-click="edit()" ng-show="node.dataEdit == null" class="btn btn-default">Edit</button>
-            <button ng-click="save()" ng-show="node.dataEdit != null" class="btn btn-default">Save</button>
+            <button ng-click="edit()" ng-show="node.readOnly" class="btn btn-default">Edit</button>
+            <button ng-click="save()" ng-show="!node.readOnly" class="btn btn-default">Save</button>
         </form>
     </div>
 </div>

@@ -3,30 +3,37 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
     $scope.node.name = $routeParams.path.replace(/---/g, "/")
 
     # Hold the reference to Ace editor
-    editor = null
-
-    $scope.$on 'closeEditMode', () ->
-        $scope.node.dataEdit = null
+    editor = ace.edit("editor")
+    #editor.setReadOnly(true)
+    editor.setTheme("ace/theme/twilight")
 
     $scope.$watch 'node.name', ->
+        $scope.node.readOnly = true
+        editor.setValue("")
+        editor.setReadOnly(true)
+        editor.setTheme("ace/theme/dawn")
         if $scope.node && $scope.node.name
+            # Clear editor contents before trying to load new node contents
             $http.get(window.settings.connection + "/0/node" + $scope.node.name + "/")
                 .success (data) ->
                     $scope.node.data = data
+                    # Fallback data type is plain text
+                    dataType = "json"
+                    if data.constructor == String
+                        dataType = "text"
+                        tmpData = data
+                    else
+                        tmpData = JSON.stringify(data)
+
+                    editor.getSession().setMode("ace/mode/" + dataType)
+                    editor.setValue(tmpData)
                 .error () ->
                     $scope.flashError = "failed to load data for node '" + $scope.node.name + "'"
 
     $scope.edit = ->
-        $scope.node.dataEdit = $scope.node.data
-        editor = ace.edit("editor")
+        $scope.node.readOnly = false
+        editor.setReadOnly(false)
         editor.setTheme("ace/theme/twilight")
-
-        # Fallback data type is plain text
-        dataType = "json"
-        if $scope.node.data.constructor == String
-            dataType = "text"
-
-        editor.getSession().setMode("ace/mode/" + dataType)
 
     $scope.save = ->
         nodeData = editor.getValue()
@@ -47,4 +54,6 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
                 switch status
                     when 409 then $scope.flashInfo = 'Bad version'
                     when 404 then $scope.flashError = "Node '" + $scope.node.name + "' does not exist."
-                    
+
+
+
