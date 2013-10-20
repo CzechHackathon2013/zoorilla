@@ -57,12 +57,14 @@ TreeController = ($scope, $http, $rootScope) ->
         res = []
         data = $scope.tree
         for node in data
-            if node.indexOf(path+"/") == -1
+            if node.indexOf(path+"/") != 0
                 res.push node
+            else
+                $scope.tree_open = $scope.tree_open.remove(node)
         $scope.tree = res
 
     $scope.showHideChildren = (path) ->
-        if $scope.tree_open.indexOf(path) == -1
+        if $scope.tree_open.indexOf(path) != 0
             $scope.showChildren(path+"/")
             $scope.tree_open.push path
         else
@@ -75,7 +77,7 @@ TreeController = ($scope, $http, $rootScope) ->
             .success (data) ->
                 # console.log data
                 if data.length != 0
-                    if $scope.tree_open.indexOf(path) == -1
+                    if $scope.tree_open.indexOf(path) != 0
                         $scope.tree_children_button[path] = "plus"
                     else
                         $scope.tree_children_button[path] = "minus"
