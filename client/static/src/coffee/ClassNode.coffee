@@ -33,6 +33,9 @@ class Node
         @children = []
 
         for node in NodeStorage.nodes
+            if node.name == name
+                node = @
+                return
             if @.isChildOf(node)
                 node.children.push @
         NodeStorage.push @
