@@ -129,6 +129,7 @@ TreeController = ($scope, $http, $rootScope) ->
                     path: node
                     type: 'CHILDREN'
                 ws.send(JSON.stringify(tmp))
+                $scope.tree_children_button[node] = "plus"
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
