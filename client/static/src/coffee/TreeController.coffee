@@ -41,3 +41,37 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.loadChildren "/"
     # rootNode = new Node("/", "persistent")
     $scope.nodes = NodeStorage.nodes
+
+    ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
+
+    ws.onerror = (event) ->
+        console.log(event)
+
+    ws.onmessage = (event) ->
+        console.log(event)
+        data = JSON.parse(event.data)
+        $scope.$apply( (scope) ->
+            path = data.path
+            if path.charAt(path.length - 1) != '/'
+                path = path + '/'
+            
+            if data.add
+                element = data.add
+                new Node(path+element.name, element.type, not element.leaf)
+                
+            if data.delete
+                node = new Node(path+data.delete)
+                node.delete()
+                $scope.nodes = NodeStorage.nodes
+
+        )
+
+    ws.onopen = (event) ->
+        tmp =
+            watch: 'true'
+            path: '/'
+            type: 'CHILDREN'
+        ws.send(JSON.stringify(tmp))
+
+    ws.onclose = (event) ->
+        console.log(event)

@@ -37,7 +37,9 @@ class Node
 
         for node in NodeStorage.nodes
             if node.name == name
+                id = node.id
                 node = @
+                node.id = id
                 return
             if @.isChildOf(node)
                 node.children.push @
