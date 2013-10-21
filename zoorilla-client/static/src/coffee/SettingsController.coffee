@@ -10,7 +10,6 @@ SettingsController = ($scope, $routeParams, $http) ->
                 alert "Saved"
             .error () ->
                 alert "No running Zoorilla server on '"+$scope.settings.connection+"'"
-                window.settings.connection = null
 
     $scope.reset = ->
         if confirm "Reset all settings?"
