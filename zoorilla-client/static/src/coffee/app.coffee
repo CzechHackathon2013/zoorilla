@@ -15,7 +15,7 @@ main.config ($routeProvider) ->
        templateUrl: "static/templates/no-connection.html",
     })
     .when("/browse/:path", {
-       templateUrl: "static/templates/view.html",
+       templateUrl: "static/templates/browse.html",
     })
     .otherwise {redirectTo: "/browse/"}
 
