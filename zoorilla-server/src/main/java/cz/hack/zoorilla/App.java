@@ -1,13 +1,7 @@
 package cz.hack.zoorilla;
 
-import com.google.common.base.Charsets;
 import cz.hack.zoorilla.notify.NotificationBroker;
 import java.io.File;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryNTimes;
-import org.apache.curator.test.TestingServer;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -32,9 +32,9 @@ public class NotificationBroker {
 	
 	private final CuratorFramework client;
 	private final ExecutorService executor = Executors.newCachedThreadPool();
-	private Map<String, CacheReference<PathChildrenCache>> childrenCaches = Maps.newHashMap();
-	private Map<TypePath, Set<Session>> watchedBy = Maps.newHashMap();
-	private Map<Session, Set<TypePath>> sessionWatches = Maps.newHashMap();
+	private final Map<String, CacheReference<PathChildrenCache>> childrenCaches = Maps.newHashMap();
+	private final Map<TypePath, Set<Session>> watchedBy = Maps.newHashMap();
+	private final Map<Session, Set<TypePath>> sessionWatches = Maps.newHashMap();
 
 	public NotificationBroker(CuratorFramework client) {
 		this.client = client;
