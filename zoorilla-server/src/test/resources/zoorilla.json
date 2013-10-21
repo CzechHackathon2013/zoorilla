@@ -1,0 +1,15 @@
+{
+	"zookeeper": {
+		"host": "localhost",
+		"port": 2181,
+		"type": "test",
+		
+		"data": [
+			{
+				"key" : "/a/b/c",
+				"value" : "xxx",
+				"type"	: "PERSISTENT"
+			}
+		]
+	}
+}

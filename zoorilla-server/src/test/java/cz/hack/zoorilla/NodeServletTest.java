@@ -2,10 +2,7 @@ package cz.hack.zoorilla;
 
 import com.google.common.base.Charsets;
 import cz.hack.zoorilla.notify.NotificationBroker;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryNTimes;
-import org.apache.curator.test.TestingServer;
+import java.io.File;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -29,30 +26,25 @@ public class NodeServletTest {
 	public NodeServletTest() {
 	}
 	
-	private static TestingServer zooServer;
-	private static CuratorFramework client;
+	private static ZooBuilder zb;
 	private static NotificationBroker w;
 	private static ServerService server;
 	
 	
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		zooServer = new TestingServer(2181);
+		zb = new ZooBuilder(new File("./src/test/resources/zoorilla.json"));
 		
-        client = CuratorFrameworkFactory.newClient("localhost:2181", new RetryNTimes(Integer.MAX_VALUE, 1000));
-        client.start();
+		w = new NotificationBroker(zb.getClient());
         
-		w = new NotificationBroker(client);
-        
-		server = new ServerService(client, w);
+		server = new ServerService(zb.getClient(), w);
         server.start();
 	}
 	
 	@AfterClass
 	public static void tearDownClass() throws Exception {
 		server.stop();
-		client.close();
-		zooServer.stop();
+		zb.stop();
 	}
 
 	@Test
