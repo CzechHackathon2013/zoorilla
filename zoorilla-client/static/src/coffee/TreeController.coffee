@@ -17,8 +17,13 @@ TreeController = ($scope, $http, $rootScope) ->
                 $scope.nodes = NodeStorage.nodes
 
     $scope.removeNode = (node) ->
-        node.delete()
-        $scope.nodes = NodeStorage.nodes
+        if not confirm "Really remove node '" + node.name + "'"
+            return
+        node.name = "" if node.name == "/"
+        $http.delete(window.settings.connection+"/0/node"+node.name+"/")
+            .success ->
+                node.delete()
+                $scope.nodes = NodeStorage.nodes
 
     $scope.addNode = (node) ->
         suffix = prompt "Name of new node"
