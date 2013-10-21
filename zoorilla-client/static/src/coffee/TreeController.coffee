@@ -6,12 +6,14 @@ TreeController = ($scope, $http, $rootScope) ->
 
     $scope.loadChildren = (name) ->
         if name == "/"
-            name = "" 
-
+            name = ""
         $http.get(window.settings.connection+"/0/children"+name+"/")
             .success (data) ->
+                if name == ""
+                    name = "/"
+                node = NodeStorage.get(name)
                 for element in data
-                    new Node("/"+element.name, element.type, not element.leaf)
+                    node.createChild(element.name, element.type, not element.leaf)
                 $scope.nodes = NodeStorage.nodes
 
     $scope.removeNode = (node) ->
@@ -23,31 +25,35 @@ TreeController = ($scope, $http, $rootScope) ->
         if not suffix
             return
         name = node.name + "/" + suffix
-        typeFull = "ephemeral" if type == "e"
-        typeFull = "persistent" if type == "p"
+        name = "/" + suffix if node.name == "/"
         $http({
             url: window.settings.connection+"/0/node"+name+"/",
             method: "PUT",
-            data: JSON.stringify({"type": typeFull}),
+            data: JSON.stringify({"type": "persistent"}),
             headers: {'Content-Type': 'application/json'},
         })
             .success ->
                 node.createChild(suffix, "p")
+                node.isOpen = false
                 $scope.nodes = NodeStorage.nodes
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
 
     $scope.showHideChildren = (node) ->
-        if node.hasChildrens
+        node = NodeStorage.get(node.name)
+        if node.isOpen
             node.deleteChildren()
+            node.isOpen = false
         else
             $scope.loadChildren(node.name)
+            node.isOpen = true
         $scope.nodes = NodeStorage.nodes
 
-    $scope.loadChildren "/"
-    # rootNode = new Node("/", "persistent")
+    # $scope.loadChildren "/"
+    rootNode = new Node("/", "persistent", true)
     $scope.nodes = NodeStorage.nodes
+
 
     ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
 

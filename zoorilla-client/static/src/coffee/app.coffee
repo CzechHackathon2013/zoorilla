@@ -28,9 +28,12 @@ Node.prototype.level = () ->
         return 0
     return this.path.length
 
+Node.prototype.logState = () ->
+    [this.hasChildren(), this.children.length]
+
 Node.prototype.iconSuffix = () ->
     if this.hasChildren()
-        if this.children.length
+        if this.children.length != 0
             return "minus"
         return "plus"
     return ""
@@ -38,6 +41,7 @@ Node.prototype.iconSuffix = () ->
 Node.prototype.deleteChildren = () ->
     for node in this.children
         node.delete()
+    this.children = []
 
 isConnected = ->
     if not window.settings.connection

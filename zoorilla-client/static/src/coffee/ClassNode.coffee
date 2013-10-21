@@ -60,8 +60,8 @@ class Node
         NodeStorage.deleteById @id
 
     hasChildren: ->
+        return @__hasChildren if @__hasChildren?
         return true if @children.length
-        return true if @__hasChildren
         return false
 
     createChild: (suffix, type, __hasChildren) ->
