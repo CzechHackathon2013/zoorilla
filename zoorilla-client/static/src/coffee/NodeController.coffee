@@ -10,6 +10,8 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
     editor.setTheme("ace/theme/twilight")
 
     $scope.$watch 'node.name', ->
+        if not $scope.node
+            return
         $scope.node.readOnly = true
         editor.setValue("")
         editor.setReadOnly(true)
