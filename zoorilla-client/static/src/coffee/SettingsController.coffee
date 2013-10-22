@@ -3,9 +3,10 @@ SettingsController = ($scope, $routeParams, $http) ->
     $scope.settings = window.settings
 
     $scope.save = ->
-        $http.get(window.settings.connection+"/0/zoorilla/")
+        $http.get($scope.settings.connection+"/0/zoorilla/")
             .success () ->
                 window.settings = $scope.settings
+                window.settings.wsConnection = window.settings.connection.replace(/^http(s|)/, 'ws') if window.settings.connection
                 localStorage.setItem 'zoorilla_connection', $scope.settings.connection
                 alert "Saved"
             .error () ->
