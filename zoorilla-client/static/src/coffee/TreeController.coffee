@@ -12,6 +12,7 @@ TreeController = ($scope, $http, $rootScope) ->
                 if name == ""
                     name = "/"
                 node = NodeStorage.get(name)
+                tree_watch "true", node.name, "CHILDREN"
                 for element in data
                     node.createChild(element.name, element.type, not element.leaf)
                 $scope.nodes = NodeStorage.nodes
@@ -41,6 +42,7 @@ TreeController = ($scope, $http, $rootScope) ->
                 node.createChild(suffix, "p")
                 node.isOpen = false
                 $scope.nodes = NodeStorage.nodes
+                tree_watch "true", node.name, "CHILDREN"
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
@@ -50,15 +52,16 @@ TreeController = ($scope, $http, $rootScope) ->
         if node.isOpen
             node.deleteChildren()
             node.isOpen = false
+            tree_watch 'false', node.name, "CHILDREN"
         else
             $scope.loadChildren(node.name)
             node.isOpen = true
+            tree_watch 'true', node.name, "CHILDREN"
         $scope.nodes = NodeStorage.nodes
 
     # $scope.loadChildren "/"
     rootNode = new Node("/", "persistent", true)
     $scope.nodes = NodeStorage.nodes
-
 
     ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
 
@@ -69,6 +72,7 @@ TreeController = ($scope, $http, $rootScope) ->
         console.log(event)
         data = JSON.parse(event.data)
         $scope.$apply (scope) ->
+            console.log data
             path = data.path
             if path.charAt(path.length - 1) != '/'
                 path = path + '/'
@@ -83,13 +87,16 @@ TreeController = ($scope, $http, $rootScope) ->
 
             $scope.nodes = NodeStorage.nodes
 
+    tree_watch = (watch, path, type) ->
+        console.log  path
+        ws.send JSON.stringify {
+            watch: watch
+            path: path
+            type: type
+        }
 
     ws.onopen = (event) ->
-        tmp =
-            watch: 'true'
-            path: '/'
-            type: 'CHILDREN'
-        ws.send(JSON.stringify(tmp))
+        console.log event
 
     ws.onclose = (event) ->
         console.log(event)
