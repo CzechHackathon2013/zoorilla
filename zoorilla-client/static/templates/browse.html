@@ -20,8 +20,9 @@
             <div class="form-group">
                 <pre id="editor" ng-model="node.data">{{node.data}}</pre>
             </div>
-            <button ng-click="edit()" ng-show="node.readOnly" class="btn btn-default">Edit</button>
-            <button ng-click="save()" ng-show="!node.readOnly" class="btn btn-default">Save</button>
+            <a ng-click="edit()" ng-show="node.readOnly" class="btn btn-default btn-success">Edit</a>
+            <a ng-click="save()" ng-show="!node.readOnly" class="btn btn-default btn-success">Save</a>
+            <a ng-click="save_exit()" ng-show="!node.readOnly" class="btn btn-default">Save &amp; exit</a>
         </form>
     </div>
 </div>

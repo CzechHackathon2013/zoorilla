@@ -59,5 +59,8 @@ NodeController = ($scope, $routeParams, $http, $timeout) ->
                     when 409 then $scope.flashInfo = 'Bad version'
                     when 404 then $scope.flashError = "Node '" + $scope.node.name + "' does not exist."
 
-
-
+    $scope.save_exit = ->
+        $scope.node.readOnly = true
+        editor.setReadOnly(true)
+        editor.setTheme("ace/theme/dawn")
+        $scope.save()
