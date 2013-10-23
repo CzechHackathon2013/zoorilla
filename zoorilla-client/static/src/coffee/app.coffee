@@ -43,6 +43,14 @@ Node.prototype.deleteChildren = () ->
         node.delete()
     this.children = []
 
+Array.prototype.sortNodes = () ->
+    this.sort (a, b) ->
+        if (a.name < b.name)
+            return -1
+        if (a.name > b.name)
+            return 1
+        return 0
+
 isConnected = ->
     if not window.settings.connection
         window.location.hash = "#/no-connection"

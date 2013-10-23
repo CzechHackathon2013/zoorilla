@@ -3,6 +3,7 @@ TreeController = ($scope, $http, $rootScope) ->
 
     $scope.settings = window.settings
     $scope.nodes = NodeStorage.nodes
+    $scope.nodes.sortNodes()
 
     $scope.loadChildren = (name) ->
         if name == "/"
@@ -16,6 +17,7 @@ TreeController = ($scope, $http, $rootScope) ->
                 for element in data
                     node.createChild(element.name, element.type, not element.leaf)
                 $scope.nodes = NodeStorage.nodes
+                $scope.nodes.sortNodes()
 
     $scope.removeNode = (node) ->
         if not confirm "Really remove node '" + node.name + "'"
@@ -25,6 +27,7 @@ TreeController = ($scope, $http, $rootScope) ->
             .success ->
                 node.delete()
                 $scope.nodes = NodeStorage.nodes
+                $scope.nodes.sortNodes()
 
     $scope.addNode = (node) ->
         suffix = prompt "Name of new node"
@@ -42,6 +45,7 @@ TreeController = ($scope, $http, $rootScope) ->
                 node.createChild(suffix, "p")
                 node.isOpen = false
                 $scope.nodes = NodeStorage.nodes
+                $scope.nodes.sortNodes()
                 tree_watch "true", node.name, "CHILDREN"
   
     $scope.nodeClick = () ->
@@ -58,10 +62,12 @@ TreeController = ($scope, $http, $rootScope) ->
             node.isOpen = true
             tree_watch 'true', node.name, "CHILDREN"
         $scope.nodes = NodeStorage.nodes
+        $scope.nodes.sortNodes()
 
     # $scope.loadChildren "/"
     rootNode = new Node("/", "persistent", true)
     $scope.nodes = NodeStorage.nodes
+    $scope.nodes.sortNodes()
 
     ws = new WebSocket(window.settings.wsConnection+"/0/notify/")
 
@@ -86,6 +92,7 @@ TreeController = ($scope, $http, $rootScope) ->
                 node.delete()
 
             $scope.nodes = NodeStorage.nodes
+            $scope.nodes.sortNodes()
 
     tree_watch = (watch, path, type) ->
         console.log  path
