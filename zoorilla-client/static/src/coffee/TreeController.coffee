@@ -5,6 +5,7 @@ TreeController = ($scope, $http, $rootScope) ->
     $scope.nodes = NodeStorage.nodes
     $scope.nodes.sortNodes()
 
+
     $scope.loadChildren = (name) ->
         if name == "/"
             name = ""
@@ -50,6 +51,7 @@ TreeController = ($scope, $http, $rootScope) ->
   
     $scope.nodeClick = () ->
         $rootScope.$broadcast 'closeEditMode'
+        $rootScope.$broadcast 'onPathChange'
 
     $scope.showHideChildren = (node) ->
         node = NodeStorage.get(node.name)
