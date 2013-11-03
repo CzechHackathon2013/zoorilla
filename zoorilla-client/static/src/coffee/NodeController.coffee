@@ -1,5 +1,9 @@
-NodeController = ($scope, $routeParams, $http, $timeout) ->
-    $scope.node = NodeStorage.get($routeParams.path.replace(/---/g, "/"))
+NodeController = ($scope, $routeParams, $location, $http, $timeout) ->
+    if $location.search().connection
+        window.settings.connection = $location.search().connection
+        window.settings.wsConnection = window.settings.connection.replace(/^http(s|)/, 'ws') if window.settings.connection
+
+    $scope.node = NodeStorage.get($location.search().path)
 
     if not $scope.node
         $scope.flashInfo = "Select node from list"

@@ -5,7 +5,7 @@
             <li ng-repeat="node in nodes" style="margin-left:{{node.level()*15}}px">
                 <span ng-click="showHideChildren(node)" ng-show="node.hasChildren()" class="glyphicon glyphicon-{{node.iconSuffix()}}"></span>
                 &nbsp;
-                <a class="tree-item" ng-href="#/browse/{{node.name.replaceslashes('---')}}" ng-click="nodeClick()">{{node.path.last()}}<!-- {{node.name}} --> ({{node.type.substr(0,1)}})</a>
+                <a class="tree-item" ng-href="#/browse?connection={{settings.connection}}&path={{node.name}}" ng-click="nodeClick()">{{node.path.last()}}<!-- {{node.name}} --> ({{node.type.substr(0,1)}})</a>
                 &nbsp;&nbsp;
                 <span ng-click="addNode(node)" class="glyphicon glyphicon-file"></span>
                 <span ng-click="removeNode(node)" class="glyphicon glyphicon-trash"></span>
